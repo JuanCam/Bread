@@ -3,8 +3,8 @@
 Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
 Acoording to its philosophy, Bread allows you to create a 'world' or 'universe', then you can create bodies, give them
 a shape and add them to the 'universe'.
-The main module is with this module you can create 'universe' objects and 'body' objects, these are parent modules
-Rectangles, Circles, Sprites, etc, are descendents of 'body' and they are attached to the behaviour of 'body'.
+With the main module you can create 'universe' objects and 'body' objects, these are parent modules.
+Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached to the behaviour of Body.
 
 ## Dependencies:
 - bread.js
