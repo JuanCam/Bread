@@ -24,7 +24,7 @@ Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached
 
 If you want to view my examples follow these steps:
 
-* You must have installed Node.js (https://nodejs.org/en/) and Node Pakcage Manager
+* You must have installed Node.js (https://nodejs.org/en/) and Node Package Manager
 * Run: ```npm install```
 * Then execute ```grunt```
 * Visit http://localhost:8001/
