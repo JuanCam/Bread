@@ -28,6 +28,7 @@
                 if (typeof accy != 'number') throw 'Incorrect assignment in body ';
                 this.x += this.xspeed, this.xspeed += accx;
                 this.y += this.yspeed, this.yspeed += accy;
+
             } catch (error) {
                 console.warn(error + '(accelerate)');
             }
@@ -58,6 +59,7 @@
                 this.friction = friction;
                 this.x += this.speed * Math.cos(this.angle);
                 this.y += this.speed * Math.sin(this.angle);
+
             } catch (error) {
                 console.error(error + '(impulse)');
             }
@@ -83,6 +85,7 @@
                 dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
                 alfa = (Math.PI / 2) + (ygoes * this.angle);
                 alfa = xgoes * alfa;
+                
             } catch (error) {
                 console.warn(error + '(locate)');
             }

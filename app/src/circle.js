@@ -32,6 +32,24 @@
                 console.warn(error + '(set-radius)');
             }
         },
+        collision: function(circle) {
+            try {
+                
+                if (!circle.radius) throw "Object must be a body ";
+                var x1 = this.x;
+                var y1 = this.y;
+                var radius1 = this.radius;
+                var x2 = circle.x;
+                var y2 = circle.y;
+                var radius2 = circle.radius;
+                var hypotenuse = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+                return (hypotenuse <= (radius1 + radius2));
+
+            } catch (error) {
+                console.warn(error + '(collision)')
+            }
+        },
         render: function() {
 
             if (!this.context) {
