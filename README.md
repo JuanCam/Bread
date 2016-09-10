@@ -20,6 +20,16 @@ Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached
 
 **Note: Remember that rectangle and circle depends on Body so they must be included after body.js**
 
+### Examples
+
+If you want to view my examples follow these steps:
+
+* You must have installed Node.js (https://nodejs.org/en/) and Node Pakcage Manager
+* Run: ```npm install```
+* Then execute ```grunt```
+* Visit http://localhost:8001/
+
+
 ## Getting started
 First of all fork or clone this repo, you will find the source code in the app/src folder, **Please include all files
 since in this moment the project is in development stage**.
