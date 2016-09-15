@@ -14,7 +14,7 @@
             console.warn('mixins must be an array of classes');
             return false;
         }
-
+        
         function Extended() {
             Base.apply(this, arguments);
         }

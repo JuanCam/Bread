@@ -2,50 +2,56 @@
 
     'use strict';
 
+    var error = Bread.error;
+    var isNumb = Bread.isNumber;
+    error.filename = 'rectangle.js';
+
     if (!Bread.Body) {
-        console.error('Fatal!. You must include body module');
+        console.error(error.include('You must include body module'));
+        return false;
+    }
+    if (!Bread.Line) {
+        console.error(error.include('You must include line module'));
         return false;
     }
 
-    Bread.rectangle = rectangle;
+    function Rectangle() {
+        /*Rectangle base mixin*/
+    }
 
     function rectangle(attrs) {
-        var Body = Bread.Body;
-        var extended = Bread.augment(Body, [Rectangle]);
-        var instance = new extended({
-            x: attrs.x,
-            y: attrs.y
-        });
-        instance.setWidth(attrs.width);
-        instance.setHeight(attrs.height);
+        try {
+            if (!isNumb(attrs.width)) throw error.type('width must be a number');
+            if (!isNumb(attrs.height)) throw error.type('height must be a number');
+            var extended = primitive();
+            var instance = new extended({
+                x: attrs.x,
+                y: attrs.y,
+                angle: attrs.angle || 0
+            });
+            if (!instance.x || !instance.y) throw error.type('error in position');
+            instance.defWidth = attrs.width;
+            instance.defHeight = attrs.height;
+            return instance;
 
-        return instance;
+        } catch (e) {
+            console.error(e.message);
+        }
+    }
+
+    function primitive() {
+
+        var Body = Bread.Body;
+        var Line = Bread.Line;
+        return Bread.augment(Body, [Rectangle, Line]);
     }
 
     Rectangle.prototype = {
 
-        setWidth: function(width) {
-            try {
-                if (isNaN(width)) throw "Incorrect assignment in body ";
-                this.x -= width + (((1 - Math.ceil(Math.abs(width) / width)) / 2) * width);
-                this.width = width;
-            } catch (error) {
-                console.warn(error + '(set-width)');
-            }
-        },
-        setHeight: function(height) {
-            try {
-                if (isNaN(height)) throw "Incorrect assignment in body ";
-                this.y -= height + (((1 - Math.ceil(Math.abs(height) / height)) / 2) * height);
-                this.height = height;
-            } catch (error) {
-                console.warn(error + '(set-height)');
-            }
-        },
         render: function() {
 
             if (!this.context) {
-                console.error('Context is not set, render failed!.')
+                console.error(error.declare('Context is not set, render failed!.'))
                 return false;
             }
 
@@ -55,11 +61,43 @@
             this.context.rotate(this.angle);
             this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
             this.context.restore();
+            fillRect.call(this);
+        }
+    }
+
+    Object.defineProperty(Rectangle.prototype, 'defWidth', {
+        set: function(width) {
+            try {
+                if (!isNumb(width)) throw error.type('width must be a number');
+                this.x -= width + (((1 - Math.ceil(Math.abs(width) / width)) / 2) * width);
+                this.width = width;
+            } catch (e) {
+                console.error(e.message);
+            }
+        }
+    });
+    Object.defineProperty(Rectangle.prototype, 'defHeight', {
+        set: function(height) {
+            try {
+                if (!isNumb(height)) throw error.type('height must be a number');
+                this.y -= height + (((1 - Math.ceil(Math.abs(height) / height)) / 2) * height);
+                this.height = height;
+            } catch (e) {
+                console.error(e.message);
+            }
+        }
+    });
+
+    function fillRect() {
+
+        if (this.fill) {
+            this.context.fill();
+        } else {
             this.context.stroke();
         }
     }
 
-    function Rectangle() {
-        /*Rectangle Mixin*/
-    }
+    Bread.Rectangle = primitive();
+    Bread.rectangle = rectangle;
+
 })(window, window.Bread)

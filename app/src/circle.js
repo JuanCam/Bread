@@ -2,67 +2,75 @@
 
     'use strict';
 
+    var error = Bread.error;
+    var isNumb = Bread.isNumber;
+    error.filename = 'circle';
+
     if (!Bread.Body) {
-        console.error('Fatal!. You must include body module');
+        console.error(error.include('You must include body module'));
+        return false;
+    }
+    if (!Bread.Arc) {
+        console.error(error.include('You must include arc module'));
         return false;
     }
 
     var Pi = Math.PI;
-    Bread.circle = circle;
+
+    function Circle() {
+        /*Circle base mixin*/
+    }
 
     function circle(attrs) {
-        var Body = Bread.Body;
-        var extended = Bread.augment(Body, [Circle]);
-        var instance = new extended({
-            x: attrs.x,
-            y: attrs.y
-        });
-        instance.setRadius(attrs.radius);
+        try {
+            if (!isNumb(attrs.radius)) throw error.type('radius must be a number');
+            var Body = Bread.Body;
+            var Arc = Bread.Arc;
+            var extended = primitive();
+            var instance = new extended({
+                x: attrs.x,
+                y: attrs.y
+            });
+            if (!instance.x || !instance.y) throw error.declare('error in position');
+            instance.defRaduis = attrs.radius;
+            instance.fill = attrs.fill;
+            instance.startAngle = 0;
+            instance.endAngle = 2 * Pi;
+            instance.anticlock = true;
+            return instance;
 
-        return instance;
+        } catch (e) {
+            console.error(e.message)
+        }
+    }
+
+    function primitive() {
+
+        var Body = Bread.Body;
+        var Arc = Bread.Arc;
+        return Bread.augment(Body, [Circle, Arc]);
     }
 
     Circle.prototype = {
 
-        setRadius: function(radius) {
-            try {
-                if (isNaN(radius)) throw "Incorrect assignment in body ";
-                this.radius = radius;
-            } catch (error) {
-                console.warn(error + '(set-radius)');
-            }
-        },
         collision: function(circle) {
             try {
-                
-                if (!circle.radius) throw "Object must be a body ";
-                var x1 = this.x;
-                var y1 = this.y;
-                var radius1 = this.radius;
-                var x2 = circle.x;
-                var y2 = circle.y;
-                var radius2 = circle.radius;
-                var hypotenuse = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-                return (hypotenuse <= (radius1 + radius2));
+                if (!(circle instanceof Bread.Body)) throw error.type('circle must be a body');
+                if (!circle.radius) throw error.type('radius must be a number');
+                var radius = this.radius;
+                var radiusV = circle.radius; //Visitor's radius
+                var hypotenuse = this.distance(circle);
 
-            } catch (error) {
-                console.warn(error + '(collision)')
+                return (hypotenuse <= (radius + radiusV));
+
+            } catch (e) {
+                console.error(e.message)
             }
-        },
-        render: function() {
-
-            if (!this.context) {
-                console.error('Context is not set, render failed!.');
-                return false;
-            }
-            this.context.beginPath();
-            this.context.arc(this.x, this.y, this.radius, 0, 2 * Pi);
-            this.context.stroke();
         }
     }
 
-    function Circle() {
-        /*Circle Mixin*/
-    }
+    Bread.Circle = primitive();
+    Bread.circle = circle;
+
 })(window, window.Bread)

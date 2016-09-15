@@ -4,7 +4,10 @@
 
     w.Bread = {
         v: '0.0.0',
-        universe: CreateUniverse
+        universe: CreateUniverse,
+        isNumber: function(variable) {
+            return typeof variable === 'number';
+        }
     }
 
     var context;
@@ -61,7 +64,7 @@
             }
             for (var bdy in bodies) {
                 if (bodies[bdy] == body)
-                    delete bodies[bdy];
+                    bodies[bdy] = undefined;
             };
             body.context = undefined;
         },
@@ -81,6 +84,7 @@
             }
             animate();
         }
+
     };
 
     function Universe(attrs) {
@@ -97,4 +101,7 @@
             return false;
         }
     }
+
+
+
 })(window)
