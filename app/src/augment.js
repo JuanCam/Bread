@@ -1,20 +1,23 @@
 (function(w, Bread) {
 
     'use strict';
+    var error = Bread.error;
+    error.filename = 'body';
 
     if (!w.Bread) {
-        console.error('Fatal!. You must include bread');
+        error.show(error.include('You must include Bread module'));
         return false;
     }
 
     Bread.augment = augment;
 
     function augment(Base, mixins) {
+
         if (!(mixins instanceof Array)) {
-            console.warn('mixins must be an array of classes');
+            error.show(error.type('mixins must be an Array'));
             return false;
         }
-        
+
         function Extended() {
             Base.apply(this, arguments);
         }

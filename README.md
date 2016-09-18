@@ -13,12 +13,18 @@ Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached
 
   - body.js
 
-    - rectangle.js
+  	- point.js
 
-    - circle.js
+  		- line.js
+
+    		- rectangle.js
+
+    	- arc.js
+
+    		- circle.js
 
 
-**Note: Remember that rectangle and circle depends on Body so they must be included after body.js**
+**Note: Take into account dependencies.**
 
 ### Examples
 

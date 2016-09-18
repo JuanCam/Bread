@@ -4,14 +4,15 @@
 
     var error = Bread.error;
     var isNumb = Bread.isNumber;
+    var isBody = Bread.isBody;
     error.filename = 'rectangle.js';
 
     if (!Bread.Body) {
-        console.error(error.include('You must include body module'));
+        error.show(error.include('You must include body module'));
         return false;
     }
     if (!Bread.Line) {
-        console.error(error.include('You must include line module'));
+        error.show(error.include('You must include line module'));
         return false;
     }
 
@@ -35,7 +36,7 @@
             return instance;
 
         } catch (e) {
-            console.error(e.message);
+            error.show(e);
         }
     }
 
@@ -50,10 +51,7 @@
 
         render: function() {
 
-            if (!this.context) {
-                console.error(error.declare('Context is not set, render failed!.'))
-                return false;
-            }
+            this.validateContext();
 
             this.context.save();
             this.context.beginPath();
@@ -72,7 +70,7 @@
                 this.x -= width + (((1 - Math.ceil(Math.abs(width) / width)) / 2) * width);
                 this.width = width;
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         }
     });
@@ -83,7 +81,7 @@
                 this.y -= height + (((1 - Math.ceil(Math.abs(height) / height)) / 2) * height);
                 this.height = height;
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         }
     });

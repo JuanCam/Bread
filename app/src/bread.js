@@ -2,11 +2,46 @@
 
     'use strict';
 
-    w.Bread = {
+    var Bread = {
         v: '0.0.0',
         universe: CreateUniverse,
         isNumber: function(variable) {
             return typeof variable === 'number';
+        },
+        isBody: function(variable) {
+            return variable instanceof Bread.Body
+        },
+        inRange: function(variable, lower, upper, open) {
+            return (open) ? (variable >= lower) && (variable <= upper) : (variable > lower) && (variable < upper)
+        },
+        pluck: function(collection, field) {
+
+            try {
+                if (!(collection instanceof Array)) throw 'collection must be an array in pluck';
+                var c = collection.length - 1;
+                var plucked = []
+                if (!Array.prototype.map) {
+                    function pluckLocally(collection) {
+                        if (c >= 0) {
+                            plucked.push(collection[c][field]);
+                            c--;
+                            return pluckLocally(collection);
+                        } else {
+                            return plucked;
+                        }
+                    }
+                    return pluckLocally(collection);
+                } else {
+                    return collection.map(function(n) {
+                        return n[field];
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        isArray: function(variable) {
+            return variable instanceof Array;
         }
     }
 
@@ -43,15 +78,15 @@
                 return false;
             }
 
-            group.forEach(function(item, index) {
+            group.forEach(function(body, index) {
                 for (var bdy in bodies) {
-                    if (bodies[bdy] == bdy) {
+                    if (bodies[bdy] == body) {
                         console.error('Duplicate objects in enviromet!');
                         return false;
                     }
                 }
-                bodies.push(item);
-                item.context = context;
+                bodies.push(body);
+                body.context = context;
 
             });
 
@@ -102,6 +137,6 @@
         }
     }
 
-
+    w.Bread = Bread;
 
 })(window)

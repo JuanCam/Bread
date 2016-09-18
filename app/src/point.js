@@ -4,10 +4,11 @@
 
     var error = Bread.error;
     var isNumb = Bread.isNumber;
+    var isBody = Bread.isBody;
     error.filename = 'point';
 
     if (!Bread.Body) {
-        console.error(error.include('You must include body module'));
+        error.show(error.include('You must include body module'));
         return false;
     }
 
@@ -15,33 +16,36 @@
 
     var xgoes = 1;
     var ygoes = 1;
+    var queuedir = [];
 
     function Point(attrs) {
         /*Point base mixin*/
         try {
+
             if (!isNumb(attrs.x)) throw error.type('x must be a number');
             if (!isNumb(attrs.y)) throw error.type('y must be a number');
             this.x = attrs.x;
             this.y = attrs.y;
 
         } catch (e) {
-            console.error(e.message)
+            error.show(e);
         }
     }
 
     function point(attrs) {
         try {
+
             var extended = primitive();
             var instance = new extended({
                 x: attrs.x,
                 y: attrs.y,
-                angle: angle
+                angle: attrs.angle || 0
             });
             if (!instance.x || !instance.y) throw error.declare('error in position');
             return instance;
 
         } catch (e) {
-            console.error(e.message)
+            error.show(e);
         }
     }
 
@@ -55,25 +59,25 @@
         distance: function(point) {
             var d;
             try {
+                if (!isBody(point)) throw error.type('point must be a body');
                 if (!isNumb(point.x)) throw error.type('x must be a number');
                 if (!isNumb(point.y)) throw error.type('y must be a number');
-                if (!(point instanceof Bread.Body)) throw error.type('point must be a body');
                 var d = Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
 
             } catch (e) {
-                console.error(e.message)
+                error.show(e);
             }
             return d;
         },
-        locate: function(point) {
+        pointTo: function(point) {
             /*Locate method*/
             var dx = 0;
             var dy = 0;
             try {
 
+                if (!isBody(point)) throw error.type('point must be a body');
                 if (!isNumb(point.x)) throw error.type('x must be a number');
                 if (!isNumb(point.y)) throw error.type('y must be a number');
-                if (!(point instanceof Bread.Body)) throw error.type('point must be a body');
 
                 dx = ((point.x - this.x) != 0) ? point.x - this.x : 1;
                 dy = ((point.y - this.y) != 0) ? point.y - this.y : 1;
@@ -82,13 +86,38 @@
                 this.angle = Math.atan(Math.abs(dy) / Math.abs(dx));
 
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
+        },
+        update: function(x, y, angle) {
+            try {
+                if (!isNumb(x)) throw error.type('x must be a number');
+                if (!isNumb(y)) throw error.type('y must be a number');
+                this.x = x;
+                this.y = y;
+                this.angle = angle || 0;
+            } catch (e) {
+                error.show(e);
+            }
+        },
+        direction: function() {
+            var dirx = 0;
+            var diry = 0;
+
+            if (queuedir.length <= 0) {
+                queuedir.push(this.x)
+                queuedir.push(this.y)
+            } else {
+                dirx = ((this.x - queuedir[0]) / Math.abs(this.x - queuedir[0])) || 0;
+                diry = ((this.y - queuedir[1]) / Math.abs(this.y - queuedir[1])) || 0;
+                queuedir.pop(), queuedir.pop();
+                queuedir.push(this.x), queuedir.push(this.y);
+            }
+            return [dirx, diry];
         }
     };
 
-
-    Object.defineProperty(Point, 'reflexAngle', {
+    Object.defineProperty(Point.prototype, 'reflexAngle', {
 
         get: function() {
             try {
@@ -96,13 +125,14 @@
                 var angle = (Math.PI / 2) + (ygoes * this.angle);
                 angle = xgoes * angle;
                 return angle;
-            } catch (error) {
-                console.error(error);
+            } catch (e) {
+                error.show(e);
             }
 
         }
     });
 
+    Bread.point = point;
     Bread.Point = primitive();
 
 })(window, Bread);

@@ -4,13 +4,14 @@
 
     var error = Bread.error;
     var isNumb = Bread.isNumber;
+    var isBody = Bread.isBody;
     error.filename = 'body';
 
     if (!w.Bread) {
-        console.error(error.include('You must include Bread'));
+        error.show(error.include('You must include Bread'));
         return false;
     }
-    
+
 
     function Body(attrs) {
         /*Body base class*/
@@ -25,7 +26,7 @@
             this.angle = 0;
             this.friction = 0;
         } catch (e) {
-            console.error(e.message)
+            error.show(e);
         }
     }
     /*Body public methods*/
@@ -40,7 +41,7 @@
                 this.y += this.yspeed, this.yspeed += accy;
 
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         },
         bounce: function(bnx, bny) {
@@ -51,9 +52,10 @@
                 if (!isNumb(bny)) throw error.type('y bounce must be a number');
                 this.xspeed = bnx;
                 this.yspeed = bny;
+                this.speed = Math.sqrt(Math.pow(bnx, 2) + Math.pow(bny, 2));
 
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         },
         impulse: function(speed, friction, angle) {
@@ -64,14 +66,14 @@
                 if (!isNumb(friction)) throw error.type('friction impulse must be a number');
                 if (!isNumb(angle)) throw error.type('angle impulse must be a number');
 
-                this.speed += speed;
+                this.speed = speed;
                 this.angle = angle;
                 this.friction = friction;
                 this.x += this.speed * Math.cos(this.angle);
                 this.y += this.speed * Math.sin(this.angle);
 
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         },
         move: function() {
@@ -79,6 +81,13 @@
             this.x += this.speed * Math.cos(this.angle);
             this.y += this.speed * Math.sin(this.angle);
             this.speed -= this.friction;
+        },
+        validateContext: function() {
+
+            if (!this.context) {
+                error.show(error.declare('Context is not set, render failed!.'));
+                return false;
+            }
         }
     }
 

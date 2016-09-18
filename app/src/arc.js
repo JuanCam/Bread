@@ -4,14 +4,16 @@
 
     var error = Bread.error;
     var isNumb = Bread.isNumber;
+    var isBody = Bread.isBody;
+
     error.filename = 'line';
 
     if (!Bread.Body) {
-        console.error('You must include body module');
+        error.show(error.include('You must include body module'));
         return false;
     }
     if (!Bread.Point) {
-        console.error('You must include point module');
+        error.show(error.include('You must include point module'));
         return false;
     }
 
@@ -36,11 +38,11 @@
             instance.fill = attrs.fill;
             instance.startAngle = attrs.startAngle;
             instance.endAngle = attrs.endAngle;
-            instance.anticlock = instance.anticlock;
+            instance.anticlock = instance.anticlock || false;
 
             return instance;
         } catch (e) {
-            console.error(e.message)
+            error.show(e);
         }
     }
 
@@ -54,10 +56,8 @@
 
         render: function() {
 
-            if (!this.context) {
-                console.error(error.declare('Context is not set, render failed!.'));
-                return false;
-            }
+            this.validateContext();
+
             this.context.beginPath();
             this.context.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.anticlock);
             fillArc.call(this);
@@ -70,7 +70,7 @@
                 if (!isNumb(radius)) throw error.type('radius must be a number');
                 this.radius = radius;
             } catch (e) {
-                console.error(e.message);
+                error.show(e);
             }
         }
     });

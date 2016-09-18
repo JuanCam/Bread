@@ -4,14 +4,15 @@
 
     var error = Bread.error;
     var isNumb = Bread.isNumber;
+    var isBody = Bread.isBody;
     error.filename = 'circle';
 
     if (!Bread.Body) {
-        console.error(error.include('You must include body module'));
+        error.show(error.include('You must include body module'));
         return false;
     }
     if (!Bread.Arc) {
-        console.error(error.include('You must include arc module'));
+        error.show(error.include('You must include arc module'));
         return false;
     }
 
@@ -40,7 +41,7 @@
             return instance;
 
         } catch (e) {
-            console.error(e.message)
+            error.show(e);
         }
     }
 
@@ -56,7 +57,7 @@
         collision: function(circle) {
             try {
 
-                if (!(circle instanceof Bread.Body)) throw error.type('circle must be a body');
+                if (!isBody(circle)) throw error.type('circle must be a body');
                 if (!circle.radius) throw error.type('radius must be a number');
                 var radius = this.radius;
                 var radiusV = circle.radius; //Visitor's radius
@@ -65,7 +66,7 @@
                 return (hypotenuse <= (radius + radiusV));
 
             } catch (e) {
-                console.error(e.message)
+                error.show(e);
             }
         }
     }
