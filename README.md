@@ -45,6 +45,9 @@ any html file create a canvas element.
 ```
 <canvas id="canvas_el"></canvas>
 ```
+
+### - Universe
+
 Create a universe by calling the 'universe' method from the Bread object, you must pass as an argument to this method an 
 object that contains 2 properties: the **el** property and the frame rate (in case you want to make an animation).
 ```javascript
