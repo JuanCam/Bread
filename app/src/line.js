@@ -92,9 +92,7 @@
         },
         move: function() {
             var p = this.points.length - 1;
-            this.x += this.speed * Math.cos(this.angle);
-            this.y += this.speed * Math.sin(this.angle);
-            this.speed -= this.friction;
+            Bread.Body.prototype.move.call(this);
             this.firstPoint.update(this.x, this.y);
 
             for (; p >= 0; p--) {
