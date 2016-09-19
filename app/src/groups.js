@@ -117,6 +117,7 @@
                         return (filtered.length > 0) ? filtered : undefined;
                     }
                 }
+                return find(obj);
             } catch (e) {
                 e.show();
             }
