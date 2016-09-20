@@ -99,7 +99,7 @@
             }
             for (var bdy in bodies) {
                 if (bodies[bdy] == body)
-                    bodies[bdy] = undefined;
+                    bodies.splice(1, bdy);
             };
             body.context = undefined;
         },
