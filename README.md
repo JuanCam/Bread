@@ -165,6 +165,7 @@ This methods can be found on all bodies.
  	```
  	
  	accx: Is the increment of the speed over the x axis (type number)
+ 	
  	accy: Is the increment of the speed over the y axis (type number)
  - **bounce:** makes a body bounce by modifying its speed
 
@@ -175,6 +176,7 @@ This methods can be found on all bodies.
  	```
  	
  	bnx: Is the speed over the x axis (type number)
+ 	
  	bny: Is the speed over the y axis (type number)
  - **impulse:** changes the body direction and speed, also specifies a friction
 
@@ -186,8 +188,11 @@ This methods can be found on all bodies.
  	```
  	
  	speed: Is the new body speed (type number)
+ 	
  	frict: It will reduce the speed when the move method is invoked (type number)
+ 	
  	angle: The new body angle in radians (type number)
+ 	
  - **move:** changes the position of the object according to its speed:
 
  	```javascript
@@ -245,8 +250,11 @@ This methods can be found on all bodies, except for Body.
  	```
  	
  	x: Is the new x position (type number)
+ 	
  	y: Is the new y position (type number)
+ 	
  	angle: The new point angle in radians (type number)
+ 	
  - **direction:** return an array [x,y] with the point direction according to its last position:
 
  	```javascript
@@ -291,6 +299,7 @@ var line1 = Bread.line({
  ```
  
  line2: Is an object that represents a line (type Line)
+ 
  hit: Boolean variable. True if there is a collison otherwise: False
  - **render:** Render the line in the universe. Remember that you must add the line to the universe.
 
