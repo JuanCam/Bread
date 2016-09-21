@@ -3,10 +3,10 @@
     'use strict';
 
     var error = Bread.error;
-    var isBody = Bread.isBody;
-    var isNumber = Bread.isNumber;
-    var inRange = Bread.inRange;
-    var pluck = Bread.pluck;
+    var isBody = Bread.methods.isBody;
+    var isNumber = Bread.methods.isNumber;
+    var inRange = Bread.methods.inRange;
+    var pluck = Bread.methods.pluck;
 
     error.filename = 'line';
 

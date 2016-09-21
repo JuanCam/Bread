@@ -3,7 +3,7 @@
     'use strict';
 
     var error = Bread.error;
-    var isNumber = Bread.isNumber;
+    var isNumber = Bread.methods.isNumber;
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread'));

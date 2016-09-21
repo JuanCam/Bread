@@ -1,7 +1,7 @@
 (function(w, Bread) {
 
     var error = Bread.error;
-    var isNumb = Bread.isNumber;
+    var isNumb = Bread.methods.isNumber;
     error.filename = 'groups';
 
     if (!w.Bread) {
@@ -97,31 +97,6 @@
     }
     Group.prototype = {
 
-        findWhere: function(obj) {
-            try {
-                if (!obj || !(obj instanceof Object)) throw error.type('The parameter must be an object');
-                if (!(this instanceof Array)) throw error.type('List must be an Array.');
-                var property = Object.getOwnPropertyNames(obj)[0];
-                var i = this.length - 1;
-                var group = this;
-                var filtered = [];
-
-                function find(obj) {
-                    if (i >= 0) {
-                        if (group[i][property] === obj[property]) {
-                            filtered.push(group[i]);
-                        }
-                        i--;
-                        return find(obj);
-                    } else {
-                        return (filtered.length > 0) ? filtered : undefined;
-                    }
-                }
-                return find(obj);
-            } catch (e) {
-                e.show();
-            }
-        },
         setAt: function() {
 
         },

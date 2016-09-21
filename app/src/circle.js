@@ -3,8 +3,8 @@
     'use strict';
 
     var error = Bread.error;
-    var isNumb = Bread.isNumber;
-    var isBody = Bread.isBody;
+    var isNumb = Bread.methods.isNumber;
+    var isBody = Bread.methods.isBody;
     error.filename = 'circle';
 
     if (!Bread.Body) {
