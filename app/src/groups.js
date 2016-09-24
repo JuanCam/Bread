@@ -21,13 +21,13 @@
     function groups() {
         var b = 0;
 
-        function createGroup(body, attrs, len) {
+        function _createGroup(body, attrs, len) {
 
             if (b < len) {
 
                 this.push(body(attrs));
                 b++;
-                return createGroup.call(this, body, len);
+                return _createGroup.call(this, body, len);
             } else {
                 b = 0;
                 return this;
@@ -39,7 +39,7 @@
             var extended = primitive();
             var instance = new extended();
             if (body) {
-                return createGroup.call(instance, body, attrs, len);
+                return _createGroup.call(instance, body, attrs, len);
             }
         }
 

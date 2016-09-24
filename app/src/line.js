@@ -115,17 +115,17 @@
             var p = this.points.length - 1;
             var perimeter = 0;
 
-            function calculate(points) {
+            function _calculate(points) {
 
                 if (p > 0) {
                     perimeter += points[p].distance(points[p - 1]);
                     p--;
-                    return calculate(points);
+                    return _calculate(points);
                 } else {
                     return perimeter;
                 }
             }
-            return calculate(this.points)
+            return _calculate(this.points)
         }
     });
 
@@ -137,17 +137,17 @@
             var slopes = []
             var line = this;
 
-            function calculate(points) {
+            function _calculate(points) {
                 if (p > 0) {
                     var slope = (points[p].y - points[p - 1].y) / (points[p].x - points[p - 1].x)
                     slopes.push(slope);
                     p--;
-                    return calculate(points);
+                    return _calculate(points);
                 } else {
                     return slopes;
                 }
             }
-            return calculate(points)
+            return _calculate(points)
         }
     });
 
@@ -155,16 +155,16 @@
         var p = points.length - 1;
         var line = this;
 
-        function draw(points) {
+        function _draw(points) {
             if (p >= 0) {
                 line.context.lineTo(points[p].x, points[p].y);
                 p--;
-                return draw(points);
+                return _draw(points);
             } else {
                 return true;
             }
         }
-        return draw(points);
+        return _draw(points);
     }
 
     function compare(a, b) {
@@ -192,13 +192,13 @@
         var s = slopes.length - 1;
         var perpnSlopes = [];
 
-        function perpendicular(slopes) {
+        function _perpendicular(slopes) {
             if (s >= 0) {
                 try {
                     if (!isNumber(slopes[s])) throw error.type('slope must be a number');
                     var angle = Math.atan(slopes[s]);
                     perpnSlopes.push(angle + (Pi / 2));
-                    return perpendicular(slopes);
+                    return _perpendicular(slopes);
                 } catch (e) {
                     error.show(e);
                 }
@@ -206,7 +206,7 @@
                 return perpnSlopes;
             }
         }
-        return perpendicular(slopes);
+        return _perpendicular(slopes);
     }
 
     function getYIntersec(n, s) {

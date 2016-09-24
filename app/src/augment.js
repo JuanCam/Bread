@@ -2,14 +2,13 @@
 
     'use strict';
     var error = Bread.error;
+    var forEach = Bread.methods.forEach;
     error.filename = 'body';
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread module'));
         return false;
     }
-
-    Bread.augment = augment;
 
     function augment(Base, mixins) {
 
@@ -25,7 +24,7 @@
         Extended.prototype = Object.create(Base.prototype);
         Extended.constructor = Base;
 
-        mixins.forEach(function(mixin) {
+        forEach(mixins, function(mixin, index) {
             mix(Extended.prototype, mixin.prototype);
         });
 
@@ -36,18 +35,20 @@
         var props = Object.getOwnPropertyNames(child);
         var p = props.length - 1;
 
-        function merge() {
+        function _merge() {
             if (p >= 0) {
                 var propName = props[p];
                 var propDesc = Object.getOwnPropertyDescriptor(child, propName);
                 Object.defineProperty(base, propName, propDesc);
                 p--;
-                return merge();
+                return _merge();
             } else {
                 return true;
             }
         }
-        return merge();
+        return _merge();
     }
+
+    Bread.augment = augment;
 
 })(window, window.Bread)

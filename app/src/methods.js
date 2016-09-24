@@ -36,16 +36,16 @@
                 var c = collection.length - 1;
                 var plucked = [];
 
-                function pick(collection, field) {
+                function _pick(collection, field) {
                     if (c >= 0) {
                         plucked.push(collection[c][field]);
                         c--;
-                        return pick(collection, field);
+                        return _pick(collection, field);
                     } else {
                         return plucked;
                     }
                 }
-                return pick(collection, field);
+                return _pick(collection, field);
             } catch (e) {
                 error.show(e);
             }
@@ -59,7 +59,7 @@
                 var c = collection.length - 1;
                 var filtered = [];
 
-                function find(collection, prop) {
+                function _find(collection, prop) {
                     var property;
                     var p = properties.length - 1;
                     if (c >= 0) {
@@ -69,12 +69,12 @@
                         }
                         if (p < 0) filtered.push(collection[c]);
                         c--;
-                        return find(collection, prop);
+                        return _find(collection, prop);
                     } else {
                         return (filtered.length > 0) ? filtered : undefined;
                     }
                 }
-                return find(collection, prop);
+                return _find(collection, prop);
             } catch (e) {
                 error.show(e);
             }
@@ -91,7 +91,7 @@
                 var iter;
                 var value;
 
-                function group(collection, iterate) {
+                function _group(collection, iterate) {
 
                     if (c >= 0) {
                         value = collection[c];
@@ -102,13 +102,36 @@
                             grouped[iter] = [value];
                         }
                         c--;
-                        return group(collection, iterate);
+                        return _group(collection, iterate);
                     } else {
                         return grouped;
                     }
                 }
 
-                return group(collection, iterate);
+                return _group(collection, iterate);
+
+            } catch (e) {
+                error.show(e);
+            }
+        },
+        forEach: function(collection, fn) {
+            try {
+
+                if (!Bread.methods.isArray(collection)) throw error.type('List must be an Array.');
+                if (!Bread.methods.isFunction(fn)) throw error.type('Iterate must be a function');
+                var c = 0;
+
+                function _each(collection) {
+                    if (c < collection.length) {
+                        fn(collection[c], c);
+                        c++;
+                        return _each(collection);
+                    } else {
+                        return undefined;
+                    }
+                }
+
+                _each(collection);
 
             } catch (e) {
                 error.show(e);
