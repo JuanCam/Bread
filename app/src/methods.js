@@ -79,6 +79,9 @@
                 error.show(e);
             }
         },
+        isObject: function(variable) {
+            return variable.toString() == '[object Object]';
+        },
         groupBy: function(collection, iterate) {
 
             try {
@@ -132,6 +135,30 @@
                 }
 
                 _each(collection);
+
+            } catch (e) {
+                error.show(e);
+            }
+        },
+        map: function(collection, iterate) {
+            try {
+
+                if (!Bread.methods.isArray(collection)) throw error.type('List must be an Array.');
+                if (!Bread.methods.isFunction(iterate)) throw error.type('Iterate must be a function');
+                var c = 0;
+                var mapped = [];
+
+                function _map(collection) {
+                    if (c < collection.length) {
+                        mapped.push(iterate(collection[c], c));
+                        c++;
+                        return _map(collection);
+                    } else {
+                        return mapped;
+                    }
+                }
+
+                return _map(collection);
 
             } catch (e) {
                 error.show(e);
