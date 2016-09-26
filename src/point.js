@@ -135,4 +135,4 @@
     Bread.point = point;
     Bread.Point = primitive();
 
-})(window, Bread);
+})(window, Bread)

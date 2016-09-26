@@ -28,13 +28,16 @@ Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached
 
 #### Examples
 
-If you want to view my examples follow these steps:
+If you want to view or extend my examples go to the **app** folder and follow these steps:
 
 * You must have installed Node.js (https://nodejs.org/en/) and Node Package Manager
 * Run: ```npm install```
-* Then execute ```grunt```
+* Execute ```grunt concat:app``` to concatenate all modules.
+* Then run ```grunt connect```
 * Visit http://localhost:8001/
 * You can check the app/app.js file.
+
+If you want to use the library externally, use the file in the dist folder.
 
 ## Factories
 

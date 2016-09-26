@@ -34,4 +34,4 @@
 
     Bread.extend = extend;
 
-})(window, Bread);
+})(window, Bread)

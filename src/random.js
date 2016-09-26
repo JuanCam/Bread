@@ -97,4 +97,4 @@
 
     Bread.random = Random;
 
-})(window, Bread);
+})(window, Bread)

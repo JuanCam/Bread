@@ -93,4 +93,4 @@
 
     Bread.Body = Body;
 
-})(window, window.Bread);
+})(window, window.Bread)

@@ -244,4 +244,4 @@
     Bread.line = line;
     Bread.Line = primitive();
 
-})(window, Bread);
+})(window, Bread)
