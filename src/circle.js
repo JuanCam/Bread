@@ -5,6 +5,8 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
+    var Pi = Math.PI;
+
     error.filename = 'circle.js';
 
     if (!Bread.Body) {
@@ -15,8 +17,6 @@
         error.show(error.include('You must include arc module'));
         return false;
     }
-
-    var Pi = Math.PI;
 
     function Circle() {
         /*Circle base mixin*/

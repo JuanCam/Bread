@@ -32,8 +32,7 @@ If you want to view or extend my examples go to the **app** folder and follow th
 
 * You must have installed Node.js (https://nodejs.org/en/) and Node Package Manager
 * Run: ```npm install```
-* Execute ```grunt concat:app``` to concatenate all modules.
-* Then run ```grunt connect```
+* Execute ```grunt lift```
 * Visit http://localhost:8001/
 * You can check the app/app.js file.
 

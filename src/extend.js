@@ -3,13 +3,16 @@
     'use strict';
     var error = Bread.error;
     var forEach = Bread.methods.forEach;
+    var isArray = Bread.methods.isArray;
+
     error.filename = 'extend.js';
+
 
     function extend(Base, objects) {
         var Base = Base;
         var i;
 
-        if (!(objects instanceof Array)) {
+        if (!isArray(objects)) {
             error.show(error.type('objects must be an Array'));
             return false;
         }

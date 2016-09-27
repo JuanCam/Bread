@@ -3,6 +3,8 @@
     'use strict';
     var error = Bread.error;
     var forEach = Bread.methods.forEach;
+    var isArray = Bread.methods.isArray;
+    
     error.filename = 'augment.js';
 
     if (!w.Bread) {
@@ -12,7 +14,7 @@
 
     function augment(Base, mixins) {
 
-        if (!(mixins instanceof Array)) {
+        if (!isArray(mixins)) {
             error.show(error.type('mixins must be an Array'));
             return false;
         }
