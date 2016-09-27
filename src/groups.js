@@ -2,7 +2,7 @@
 
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
-    error.filename = 'groups';
+    error.filename = 'groups.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');
@@ -110,4 +110,4 @@
     Bread.Group = primitive();
     Bread.groups = groups();
 
-})(window, Bread)
+})(window, window.Bread)

@@ -1,7 +1,9 @@
 (function(w, Bread) {
 
     'use strict';
+    var error = Bread.error;
     var forEach = Bread.methods.forEach;
+    error.filename = 'extend.js';
 
     function extend(Base, objects) {
         var Base = Base;
@@ -34,4 +36,4 @@
 
     Bread.extend = extend;
 
-})(window, Bread)
+})(window, window.Bread)

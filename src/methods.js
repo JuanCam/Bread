@@ -1,7 +1,7 @@
 (function(w, Bread) {
 
     var error = Bread.error;
-    error.filename = 'groups';
+    error.filename = 'methods.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');
@@ -168,4 +168,4 @@
 
     Bread.methods = methods;
 
-})(window, Bread)
+})(window, window.Bread)

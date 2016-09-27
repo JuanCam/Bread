@@ -5,7 +5,7 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-    error.filename = 'point';
+    error.filename = 'point.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -135,4 +135,4 @@
     Bread.point = point;
     Bread.Point = primitive();
 
-})(window, Bread)
+})(window, window.Bread)

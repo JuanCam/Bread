@@ -6,7 +6,7 @@
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
 
-    error.filename = 'line';
+    error.filename = 'arc.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));

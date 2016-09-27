@@ -129,7 +129,7 @@
                 return error;
             },
             show: function(err) {
-                console.error(err.name + ': ' + err.message);
+                console.error('In ' + this.filename + ' ' + err.name + ': ' + err.message);
             }
         }
     }
@@ -156,11 +156,10 @@
     }
     Bread.error = errors();
 
-})(window, Bread)
-;(function(w, Bread) {
+})(window, window.Bread);(function(w, Bread) {
 
     var error = Bread.error;
-    error.filename = 'groups';
+    error.filename = 'methods.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');
@@ -327,13 +326,13 @@
 
     Bread.methods = methods;
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
     var error = Bread.error;
     var forEach = Bread.methods.forEach;
-    error.filename = 'body';
+    error.filename = 'augment.js';
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread module'));
@@ -385,7 +384,9 @@
 ;(function(w, Bread) {
 
     'use strict';
+    var error = Bread.error;
     var forEach = Bread.methods.forEach;
+    error.filename = 'extend.js';
 
     function extend(Base, objects) {
         var Base = Base;
@@ -418,21 +419,19 @@
 
     Bread.extend = extend;
 
-})(window, Bread)
-;(function(w, Bread) {
+})(window, window.Bread);(function(w, Bread) {
 
     'use strict';
 
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-    error.filename = 'body';
+    error.filename = 'body.js';
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread'));
         return false;
     }
-
 
     function Body(attrs) {
         /*Body base class*/
@@ -513,16 +512,14 @@
     }
 
     Bread.Body = Body;
-
-})(window, window.Bread)
-;(function(w, Bread) {
+})(window, window.Bread);(function(w, Bread) {
 
     'use strict';
 
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-    error.filename = 'point';
+    error.filename = 'point.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -652,7 +649,7 @@
     Bread.point = point;
     Bread.Point = primitive();
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
@@ -663,7 +660,7 @@
     var inRange = Bread.methods.inRange;
     var pluck = Bread.methods.pluck;
 
-    error.filename = 'line';
+    error.filename = 'line.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -899,7 +896,7 @@
     Bread.line = line;
     Bread.Line = primitive();
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
@@ -908,7 +905,7 @@
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
 
-    error.filename = 'line';
+    error.filename = 'arc.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -997,7 +994,7 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-    error.filename = 'circle';
+    error.filename = 'circle.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -1071,7 +1068,7 @@
 
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
-    error.filename = 'groups';
+    error.filename = 'groups.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');
@@ -1179,7 +1176,7 @@
     Bread.Group = primitive();
     Bread.groups = groups();
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
@@ -1279,4 +1276,4 @@
 
     Bread.random = Random;
 
-})(window, Bread)
+})(window, window.Bread)

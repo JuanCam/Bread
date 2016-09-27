@@ -5,13 +5,12 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-    error.filename = 'body';
+    error.filename = 'body.js';
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread'));
         return false;
     }
-
 
     function Body(attrs) {
         /*Body base class*/
@@ -92,5 +91,4 @@
     }
 
     Bread.Body = Body;
-
 })(window, window.Bread)

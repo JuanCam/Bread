@@ -3,7 +3,7 @@
     'use strict';
     var error = Bread.error;
     var forEach = Bread.methods.forEach;
-    error.filename = 'body';
+    error.filename = 'augment.js';
 
     if (!w.Bread) {
         error.show(error.include('You must include Bread module'));

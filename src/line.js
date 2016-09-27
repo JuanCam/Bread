@@ -8,7 +8,7 @@
     var inRange = Bread.methods.inRange;
     var pluck = Bread.methods.pluck;
 
-    error.filename = 'line';
+    error.filename = 'line.js';
 
     if (!Bread.Body) {
         error.show(error.include('You must include body module'));
@@ -244,4 +244,4 @@
     Bread.line = line;
     Bread.Line = primitive();
 
-})(window, Bread)
+})(window, window.Bread)

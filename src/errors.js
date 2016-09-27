@@ -25,7 +25,7 @@
                 return error;
             },
             show: function(err) {
-                console.error(err.name + ': ' + err.message);
+                console.error('In ' + this.filename + ' ' + err.name + ': ' + err.message);
             }
         }
     }
@@ -52,4 +52,4 @@
     }
     Bread.error = errors();
 
-})(window, Bread)
+})(window, window.Bread)
