@@ -114,7 +114,23 @@
                 queuedir.push(this.x), queuedir.push(this.y);
             }
             return [dirx, diry];
+        },
+        directionLine: function() {
+            var slope = Math.tan(this.angle);
+            var b = this.y - this.x * slope;
+            var xp = this.x + 10;
+            var point = Bread.point({
+                x: xp,
+                y: xp * slope + b
+            });
+
+            return Bread.line({
+                x: this.x,
+                y: this.y,
+                points: [point]
+            })
         }
+
     };
 
     Object.defineProperty(Point.prototype, 'reflexAngle', {

@@ -333,6 +333,7 @@
     'use strict';
     var error = Bread.error;
     var forEach = Bread.methods.forEach;
+    var isArray = Bread.methods.isArray;
     error.filename = 'body';
 
     if (!w.Bread) {
@@ -342,7 +343,7 @@
 
     function augment(Base, mixins) {
 
-        if (!(mixins instanceof Array)) {
+        if (!isArray(mixins)) {
             error.show(error.type('mixins must be an Array'));
             return false;
         }
@@ -386,12 +387,13 @@
 
     'use strict';
     var forEach = Bread.methods.forEach;
+    var isArray = Bread.methods.isArray;
 
     function extend(Base, objects) {
         var Base = Base;
         var i;
 
-        if (!(objects instanceof Array)) {
+        if (!isArray(objects)) {
             error.show(error.type('objects must be an Array'));
             return false;
         }
@@ -418,7 +420,7 @@
 
     Bread.extend = extend;
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
@@ -631,7 +633,23 @@
                 queuedir.push(this.x), queuedir.push(this.y);
             }
             return [dirx, diry];
+        },
+        directionLine: function() {
+            var slope = Math.tan(this.angle);
+            var b = this.y - this.x * slope;
+            var xp = this.x + 10;
+            var point = Bread.point({
+                x: xp,
+                y: xp * slope + b
+            });
+
+            return Bread.line({
+                x: this.x,
+                y: this.y,
+                points: [point]
+            })
         }
+
     };
 
     Object.defineProperty(Point.prototype, 'reflexAngle', {
@@ -662,6 +680,7 @@
     var isNumber = Bread.methods.isNumber;
     var inRange = Bread.methods.inRange;
     var pluck = Bread.methods.pluck;
+    var Pi = Math.PI;
 
     error.filename = 'line';
 
@@ -674,7 +693,6 @@
         return false;
     }
 
-    var Pi = Math.PI;
 
     function Line() {
         /*Line base mixin*/
@@ -717,13 +735,13 @@
                 var sortX = [];
                 var sortY = [];
                 var d = 0;
-                var flag = false;
+                var dirLine, cutPnt, flag;
                 for (; p < this.allPoints.length; p++) {
-                    var dirLine = directionLine.call(this, p);
-                    var cutPnt = getCutPoints.call(line, dirLine, p, p);
+                    dirLine = guidePoint.call(this, p);
+                    cutPnt = line.cutPoints(dirLine, p, p);
+                    d = this.allPoints[p].distance(cutPnt);
                     sortX = pluck(line.allPoints, 'x').sort(compare);
                     sortY = pluck(line.allPoints, 'y').sort(compare);
-                    d = this.allPoints[p].distance(cutPnt);
                     flag = d <= Math.abs(this.speed);
                     flag = flag && inRange(cutPnt.x, sortX[0], sortX[1]) && inRange(cutPnt.y, sortY[0], sortY[1]);
                     if (flag) break;
@@ -735,9 +753,7 @@
             }
         },
         render: function() {
-
             this.validateContext();
-
             this.context.beginPath();
             this.context.moveTo(this.x, this.y);
             drawPoints.call(this, this.points);
@@ -755,6 +771,28 @@
                 this.points[p].angle = this.angle;
                 this.points[p].move();
             }
+        },
+        cutPoints: function(line, n1, n2) {
+            /*Get cut points of interpolated lines*/
+            var points = this.allPoints;
+            var s1 = (n1 >= points.length - 1) ? n1 - 1 : n1;
+            var s2 = (n2 >= points.length - 1) ? n2 - 1 : n2;
+            var b1 = getYIntersec.call(line, n1, s1);
+            var b2 = getYIntersec.call(this, n2, s2);
+            var x, y;
+
+            if (b1 === Infinity || b2 === Infinity) {
+                x = points[n2].x;
+                y = points[n1].y + (Math.abs(points[n1].x - points[n2].x) * line.slopes[s1]);
+            } else {
+                x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
+                y = x * line.slopes[s1] + b1;
+            }
+
+            return Bread.point({
+                x: x,
+                y: y
+            });
         }
     };
 
@@ -826,21 +864,10 @@
         return a - b;
     }
 
-    function directionLine(n) {
-        var slope = Math.tan(this.angle);
-        var points = this.allPoints;
-        var b = points[n].y - points[n].x * slope;
-        var xp = points[n].x + 10;
-        var point = Bread.point({
-            x: xp,
-            y: xp * slope + b
-        });
-
-        return Bread.line({
-            x: points[n].x,
-            y: points[n].y,
-            points: [point]
-        })
+    function guidePoint(p) {
+        var point = this.allPoints[p];
+        point.angle = this.angle;
+        return point.directionLine();
     }
 
     function perpendicularSlopes(slopes) {
@@ -872,34 +899,10 @@
         return points[n].y - points[n].x * slopes[s];
     }
 
-    function getCutPoints(line, n1, n2) {
-
-        var points = this.allPoints;
-        var s1 = (n1 >= points.length - 1) ? n1 - 1 : n1;
-        var s2 = (n2 >= points.length - 1) ? n2 - 1 : n2;
-        var b1 = getYIntersec.call(line, n1, s1);
-        var b2 = getYIntersec.call(this, n2, s2);
-        var x;
-        var y;
-
-        if (b1 === Infinity || b2 === Infinity) {
-            x = points[n2].x;
-            y = points[n1].y + (Math.abs(points[n1].x - points[n2].x) * line.slopes[s1]);
-        } else {
-            x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
-            y = x * line.slopes[s1] + b1;
-        }
-
-        return Bread.point({
-            x: x,
-            y: y
-        });
-
-    }
     Bread.line = line;
     Bread.Line = primitive();
 
-})(window, Bread)
+})(window, window.Bread)
 ;(function(w, Bread) {
 
     'use strict';
@@ -957,9 +960,7 @@
     Arc.prototype = {
 
         render: function() {
-
             this.validateContext();
-
             this.context.beginPath();
             this.context.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.anticlock);
             fillArc.call(this);
@@ -997,6 +998,7 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
+    var Pi = Math.PI;
     error.filename = 'circle';
 
     if (!Bread.Body) {
@@ -1007,8 +1009,6 @@
         error.show(error.include('You must include arc module'));
         return false;
     }
-
-    var Pi = Math.PI;
 
     function Circle() {
         /*Circle base mixin*/

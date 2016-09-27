@@ -55,9 +55,7 @@
     Arc.prototype = {
 
         render: function() {
-
             this.validateContext();
-
             this.context.beginPath();
             this.context.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.anticlock);
             fillArc.call(this);
