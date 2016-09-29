@@ -5,9 +5,12 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
+    var forEach = Bread.methods.forEach;
+    var Body = Bread.Body;
+    var PointMix;
     error.filename = 'point.js';
 
-    if (!Bread.Body) {
+    if (!Body) {
         error.show(error.include('You must include body module'));
         return false;
     }
@@ -17,6 +20,7 @@
     var xgoes = 1;
     var ygoes = 1;
     var queuedir = [];
+    var shifted;
 
     function Point(attrs) {
         /*Point base mixin*/
@@ -35,8 +39,7 @@
     function point(attrs) {
         try {
 
-            var extended = primitive();
-            var instance = new extended({
+            var instance = new PointMix({
                 x: attrs.x,
                 y: attrs.y,
                 angle: attrs.angle || 0
@@ -49,13 +52,7 @@
         }
     }
 
-    function primitive() {
-        var Body = Bread.Body;
-        return Bread.augment(Body, [Point]);
-    }
-
     Point.prototype = {
-
         distance: function(point) {
             var d;
             try {
@@ -129,6 +126,15 @@
                 y: this.y,
                 points: [point]
             })
+        },
+        reach: function(point, lines) {
+            try {
+                if (!isNumb(point.x)) throw error.type('x must be a number');
+                if (!isNumb(point.y)) throw error.type('y must be a number');
+                linesInPath.call(this, lines);
+            } catch (e) {
+                error.show(e);
+            }
         }
 
     };
@@ -148,7 +154,22 @@
         }
     });
 
+    Object.defineProperty(Point.prototype, 'point', {
+        'enumerable': true,
+        'value': true
+    });
+
+    function linesInPath(lines) {
+        var dirLine = this.directionLine();
+        var cutPnt;
+        forEach(lines, function(line) {
+            cutPnt = line.cutPoints(dirLine);
+        });
+        return cutPnt;
+    }
+
+    PointMix = Bread.augment(Body, [Point]);
     Bread.point = point;
-    Bread.Point = primitive();
+    Bread.Point = PointMix;
 
 })(window, window.Bread)

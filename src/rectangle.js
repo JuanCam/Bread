@@ -5,6 +5,9 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
+    var Body = Bread.Body;
+    var Line = Bread.Line;
+    var RectangleMix;
     error.filename = 'rectangle.js';
 
     if (!Bread.Body) {
@@ -24,8 +27,8 @@
         try {
             if (!isNumb(attrs.width)) throw error.type('width must be a number');
             if (!isNumb(attrs.height)) throw error.type('height must be a number');
-            var extended = primitive();
-            var instance = new extended({
+
+            var instance = new RectangleMix({
                 x: attrs.x,
                 y: attrs.y,
                 angle: attrs.angle || 0
@@ -40,19 +43,11 @@
         }
     }
 
-    function primitive() {
-
-        var Body = Bread.Body;
-        var Line = Bread.Line;
-        return Bread.augment(Body, [Rectangle, Line]);
-    }
-
     Rectangle.prototype = {
 
         render: function() {
 
             this.validateContext();
-
             this.context.save();
             this.context.beginPath();
             this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
@@ -86,6 +81,11 @@
         }
     });
 
+    Object.defineProperty(Rectangle.prototype, 'rectangle', {
+        'enumerable': true,
+        'value': true
+    });
+
     function fillRect() {
 
         if (this.fill) {
@@ -95,7 +95,9 @@
         }
     }
 
-    Bread.Rectangle = primitive();
+    RectangleMix = Bread.augment(Body, [Rectangle, Line]);
     Bread.rectangle = rectangle;
+    debugger
+    Bread.Rectangle = RectangleMix;
 
 })(window, window.Bread)

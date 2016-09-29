@@ -17,6 +17,21 @@
         isBody: function(variable) {
             return variable instanceof Bread.Body;
         },
+        isCircle:function(variable) {
+            return Bread.Circle.prototype.isPrototypeOf(variable);
+        },
+        isRectangle:function(variable) {
+            return Bread.Rectangle.prototype.isPrototypeOf(variable);
+        },
+        isLine:function(variable) {
+            return Bread.Line.prototype.isPrototypeOf(variable);
+        },
+        isPoint:function(variable) {
+            return Bread.Point.prototype.isPrototypeOf(variable);
+        },
+        isArc:function(variable) {
+            return Bread.Arc.prototype.isPrototypeOf(variable);
+        },
         inRange: function(variable, lower, upper, open) {
             return (open) ? (variable >= lower) && (variable <= upper) : (variable > lower) && (variable < upper);
         },

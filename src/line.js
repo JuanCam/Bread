@@ -7,15 +7,18 @@
     var isNumber = Bread.methods.isNumber;
     var inRange = Bread.methods.inRange;
     var pluck = Bread.methods.pluck;
+    var Body = Bread.Body;
+    var Point = Bread.Point;
+    var LineMix;
     var Pi = Math.PI;
 
     error.filename = 'line.js';
 
-    if (!Bread.Body) {
+    if (!Body) {
         error.show(error.include('You must include body module'));
         return false;
     }
-    if (!Bread.Point) {
+    if (!Point) {
         error.show(error.include('You must include point module'));
         return false;
     }
@@ -29,9 +32,9 @@
         try {
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
-            var extended = primitive();
+            /*Create an object for the first point*/
             var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
-            var instance = new extended({
+            var instance = new LineMix({
                 x: attrs.x,
                 y: attrs.y
             });
@@ -45,12 +48,6 @@
         } catch (e) {
             error.show(e);
         }
-    }
-
-    function primitive() {
-        var Body = Bread.Body;
-        var Point = Bread.Point;
-        return Bread.augment(Body, [Line, Point]);
     }
 
     Line.prototype = {
@@ -171,6 +168,11 @@
         }
     });
 
+    Object.defineProperty(Line.prototype, 'line', {
+        'enumerable': true,
+        'value': true
+    });
+
     function drawPoints(points) {
         var p = points.length - 1;
         var line = this;
@@ -226,7 +228,8 @@
         return points[n].y - points[n].x * slopes[s];
     }
 
+    LineMix = Bread.augment(Body, [Line, Point]);
     Bread.line = line;
-    Bread.Line = primitive();
+    Bread.Line = LineMix;
 
 })(window, window.Bread)

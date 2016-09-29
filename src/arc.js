@@ -5,14 +5,16 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
-
+    var Body = Bread.Body;
+    var Point = Bread.Point;
+    var ArcMix;
     error.filename = 'arc.js';
 
-    if (!Bread.Body) {
+    if (!Body) {
         error.show(error.include('You must include body module'));
         return false;
     }
-    if (!Bread.Point) {
+    if (!Point) {
         error.show(error.include('You must include point module'));
         return false;
     }
@@ -28,8 +30,7 @@
             if (!isNumb(attrs.startAngle)) throw error.type('startAngle must be a number');
             if (!isNumb(attrs.endAngle)) throw error.type('endAngle must be a number');
 
-            var extended = primitive();
-            var instance = new extended({
+            var instance = new ArcMix({
                 x: attrs.x,
                 y: attrs.y
             });
@@ -44,12 +45,6 @@
         } catch (e) {
             error.show(e);
         }
-    }
-
-    function primitive() {
-        var Body = Bread.Body;
-        var Point = Bread.Point;
-        return Bread.augment(Body, [Arc, Point]);
     }
 
     Arc.prototype = {
@@ -73,6 +68,12 @@
         }
     });
 
+
+    Object.defineProperty(Arc.prototype, 'arc', {
+        'enumerable': true,
+        'value': true
+    });
+
     function fillArc() {
 
         if (this.fill) {
@@ -82,7 +83,8 @@
         }
     }
 
+    ArcMix = Bread.augment(Body, [Arc, Point]);
     Bread.arc = arc;
-    Bread.Arc = primitive();
+    Bread.Arc = ArcMix;
 
 })(window, window.Bread)

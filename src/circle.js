@@ -5,15 +5,18 @@
     var error = Bread.error;
     var isNumb = Bread.methods.isNumber;
     var isBody = Bread.methods.isBody;
+    var Body = Bread.Body;
+    var Arc = Bread.Arc;
+    var CircleMix;
     var Pi = Math.PI;
 
     error.filename = 'circle.js';
 
-    if (!Bread.Body) {
+    if (!Body) {
         error.show(error.include('You must include body module'));
         return false;
     }
-    if (!Bread.Arc) {
+    if (!Arc) {
         error.show(error.include('You must include arc module'));
         return false;
     }
@@ -25,10 +28,8 @@
     function circle(attrs) {
         try {
             if (!isNumb(attrs.radius)) throw error.type('radius must be a number');
-            var Body = Bread.Body;
-            var Arc = Bread.Arc;
-            var extended = primitive();
-            var instance = new extended({
+
+            var instance = new CircleMix({
                 x: attrs.x,
                 y: attrs.y
             });
@@ -43,13 +44,6 @@
         } catch (e) {
             error.show(e);
         }
-    }
-
-    function primitive() {
-
-        var Body = Bread.Body;
-        var Arc = Bread.Arc;
-        return Bread.augment(Body, [Circle, Arc]);
     }
 
     Circle.prototype = {
@@ -71,7 +65,13 @@
         }
     }
 
-    Bread.Circle = primitive();
+    Object.defineProperty(Circle.prototype, 'circle', {
+        'enumerable': true,
+        'value': true
+    });
+
+    CircleMix = Bread.augment(Body, [Circle, Arc]);;
     Bread.circle = circle;
+    Bread.Circle = CircleMix;
 
 })(window, window.Bread)

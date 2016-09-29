@@ -14,43 +14,36 @@
         return new Universe(attrs);
     }
 
-    /*Private attributes*/
-    var bodies = [];
     /*Universe Public methods and attributes*/
     Universe.prototype = {
+        bodies:[],
         addIt: function(body) {
 
             if (!(body instanceof Bread.Body)) {
                 console.error('Incorrect input argument in add-it!');
                 return false;
             }
-            for (var bd in bodies) {
-                if (bodies[bd] == body) {
+
+            for (var bd in this.bodies) {
+                if (this.bodies[bd] == body) {
                     console.error('Duplicate objects in enviromet!');
                     return false;
                 }
             }
-            bodies.push(body);
+
+            this.bodies.push(body);
             body.context = context;
         },
         addGroup: function(group) {
 
             if (typeof group != 'object' && !(group instanceof Array)) {
-                console.error('Incorrect input argument in add-it!');
+                console.error('Incorrect input argument in add-group!');
                 return false;
             }
-
-            group.forEach(function(body, index) {
-                for (var bdy in bodies) {
-                    if (bodies[bdy] == body) {
-                        console.error('Duplicate objects in enviromet!');
-                        return false;
-                    }
-                }
-                bodies.push(body);
-                body.context = context;
-
-            });
+            var bd = group.length - 1;
+            for (; bd >= 0; bd--) {
+                this.addIt(group[bd]);
+            }
 
         },
         removeIt: function(body) {
@@ -59,13 +52,13 @@
                 console.error('Incorrect input argument in remove-it!');
                 return false;
             }
-            for (var bdy in bodies) {
-                if (bodies[bdy] == body)
-                    bodies.splice(1, bdy);
+            for (var bdy in this.bodies) {
+                if (this.bodies[bdy] == body)
+                    this.bodies.splice(1, bdy);
             };
             body.context = undefined;
         },
-        animation: function(cfn) {
+        animation: function(fn) {
 
             var local = this;
             var canvas = local.el;
@@ -77,9 +70,15 @@
             function Animation() {
                 requestAnimationFrame(animate);
                 context.clearRect(0, 0, canvas.width, canvas.height);
-                cfn.call(local);
+                fn.call(local);
             }
             animate();
+        },
+        getBodies: function(type) {
+            var where = Bread.methods.where;
+            var filter = {};
+            filter[type] = true;
+            return (type) ? where(this.bodies, filter) : this.bodies;
         }
 
     };

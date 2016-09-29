@@ -146,8 +146,8 @@ var MyCustomBody =  Bread.augment(Body, [MyMixin]);
 
  This attributes are the same for all bodies.
 
- - **y:** position in x.
- - **x:** position in y.
+ - **x:** position in x.
+ - **y:** position in y.
  - **xspeed:** speed over the x axis.
  - **yspeed:** speed over the y axis.
  - **speed:** body speed.

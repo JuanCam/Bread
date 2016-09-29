@@ -12,7 +12,7 @@ module.exports = function(grunt) {
             'src/line.js',
             'src/arc.js',
             'src/circle.js',
-            'src/rectanlge.js',
+            'src/rectangle.js',
             'src/groups.js',
             'src/random.js'
         ]

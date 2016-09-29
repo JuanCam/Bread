@@ -51,7 +51,6 @@
     line1.angle = -0.5;
     circ1.speed = 2;
     var accx2 = -0.01;
-    line1.collision(line2);
     
     firstReality.animation(function() {
 
