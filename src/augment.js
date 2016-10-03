@@ -1,10 +1,7 @@
 (function(w, Bread) {
 
     'use strict';
-    var error = Bread.error;
-    var forEach = Bread.methods.forEach;
-    var isArray = Bread.methods.isArray;
-    
+    var error = Bread.error();
     error.filename = 'augment.js';
 
     if (!w.Bread) {
@@ -14,7 +11,7 @@
 
     function augment(Base, mixins) {
 
-        if (!isArray(mixins)) {
+        if (!Bread.isArray(mixins)) {
             error.show(error.type('mixins must be an Array'));
             return false;
         }
@@ -23,10 +20,10 @@
             Base.apply(this, arguments);
         }
 
-        Extended.prototype = Object.create(Base.prototype);
+        Extended.prototype = Object.create(Base.prototype);//Chain
         Extended.constructor = Base;
 
-        forEach(mixins, function(mixin, index) {
+        Bread.forEach(mixins, function(mixin, index) {
             mix(Extended.prototype, mixin.prototype);
         });
 

@@ -2,11 +2,11 @@ module.exports = function(grunt) {
     'use strict';
     var config = {
         sources: [
-            'src/bread.js',
+            'src/core.js',
             'src/errors.js',
+            'src/extend.js',
             'src/methods.js',
             'src/augment.js',
-            'src/extend.js',
             'src/body.js',
             'src/point.js',
             'src/line.js',
@@ -36,14 +36,19 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 separator: ';',
+                banner: "'use strict';\n",
+                process: function(src, filepath) {
+                    return '/* Module file: ' + filepath  + ' */\n' +
+                        src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
+                },
             },
             dist: {
                 src: config.sources,
-                dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
+                dest: 'dist/<%= pkg.name %>.js',
             },
             app: {
                 src: config.sources,
-                dest: 'app/js/<%= pkg.name %>-<%= pkg.version %>.js',
+                dest: 'app/js/<%= pkg.name %>.js',
             }
         }
     });
@@ -53,5 +58,5 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', ['concat:dist']);
-    grunt.registerTask('lift',['concat:app','connect'])
+    grunt.registerTask('lift', ['concat:app', 'connect'])
 }

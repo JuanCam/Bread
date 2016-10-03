@@ -1,38 +1,22 @@
 (function(w, Bread) {
 
     'use strict';
-    var error = Bread.error;
-    var forEach = Bread.methods.forEach;
-    var isArray = Bread.methods.isArray;
-
+    
+    var error = Bread.error();
     error.filename = 'extend.js';
 
-
-    function extend(Base, objects) {
-        var Base = Base;
-        var i;
-
-        if (!isArray(objects)) {
-            error.show(error.type('objects must be an Array'));
-            return false;
-        }
-
-        forEach(objects, function(object) {
-
-            var properties = Object.getOwnPropertyNames(object);
-            i = properties.length - 1;
-            _merge(object, properties);
-        });
+    function extend(Base, object) {
+        var i, len, object, properties;
+        properties = Object.getOwnPropertyNames(object);
+        _merge.call(Base, object, properties);
 
         function _merge(object, properties) {
-            if (i >= 0) {
-                var propName = properties[i]
-                var propDesc = Object.getOwnPropertyDescriptor(object, propName);
-                Object.defineProperty(Base, propName, propDesc);
-                i--;
-                return _merge(object, properties);
-            } else {
-                return Base;
+            var i = 0,
+                propName, propDesc;
+            for (; i < properties.length; i++) {
+                propName = properties[i]
+                propDesc = Object.getOwnPropertyDescriptor(object, propName);
+                Object.defineProperty(this, propName, propDesc);
             }
         }
     }

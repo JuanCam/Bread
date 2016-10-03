@@ -2,12 +2,10 @@
 
     'use strict';
 
-    var error = Bread.error;
-    var isNumb = Bread.methods.isNumber;
-    var isBody = Bread.methods.isBody;
-    var Body = Bread.Body;
-    var Point = Bread.Point;
-    var ArcMix;
+    var error, Body, Point, ArcMix;
+    error = Bread.error();
+    Body = Bread.Body;
+    Point = Bread.Point;
     error.filename = 'arc.js';
 
     if (!Body) {
@@ -26,10 +24,9 @@
     function arc(attrs) {
 
         try {
-            if (!isNumb(attrs.radius)) throw error.type('radius must be a number');
-            if (!isNumb(attrs.startAngle)) throw error.type('startAngle must be a number');
-            if (!isNumb(attrs.endAngle)) throw error.type('endAngle must be a number');
-
+            if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
+            if (!Bread.isNumber(attrs.startAngle)) throw error.type('startAngle must be a number');
+            if (!Bread.isNumber(attrs.endAngle)) throw error.type('endAngle must be a number');
             var instance = new ArcMix({
                 x: attrs.x,
                 y: attrs.y
@@ -60,7 +57,7 @@
     Object.defineProperty(Arc.prototype, 'defRaduis', {
         set: function(radius) {
             try {
-                if (!isNumb(radius)) throw error.type('radius must be a number');
+                if (!Bread.isNumber(radius)) throw error.type('radius must be a number');
                 this.radius = radius;
             } catch (e) {
                 error.show(e);

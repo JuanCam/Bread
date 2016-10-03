@@ -1,13 +1,12 @@
 (function(w, Bread) {
 
     'use strict';
-
-    var error = Bread.error;
-    var isNumb = Bread.methods.isNumber;
-    var isBody = Bread.methods.isBody;
-    var Body = Bread.Body;
-    var Line = Bread.Line;
-    var RectangleMix;
+    
+    var error, Body, Line, RectangleMix;
+    error = Bread.error();
+    Body = Bread.Body;
+    Line = Bread.Line;
+    RectangleMix;
     error.filename = 'rectangle.js';
 
     if (!Bread.Body) {
@@ -25,9 +24,8 @@
 
     function rectangle(attrs) {
         try {
-            if (!isNumb(attrs.width)) throw error.type('width must be a number');
-            if (!isNumb(attrs.height)) throw error.type('height must be a number');
-
+            if (!Bread.isNumber(attrs.width)) throw error.type('width must be a number');
+            if (!Bread.isNumber(attrs.height)) throw error.type('height must be a number');
             var instance = new RectangleMix({
                 x: attrs.x,
                 y: attrs.y,
@@ -61,7 +59,7 @@
     Object.defineProperty(Rectangle.prototype, 'defWidth', {
         set: function(width) {
             try {
-                if (!isNumb(width)) throw error.type('width must be a number');
+                if (!Bread.isNumber(width)) throw error.type('width must be a number');
                 this.x -= width + (((1 - Math.ceil(Math.abs(width) / width)) / 2) * width);
                 this.width = width;
             } catch (e) {
@@ -72,7 +70,7 @@
     Object.defineProperty(Rectangle.prototype, 'defHeight', {
         set: function(height) {
             try {
-                if (!isNumb(height)) throw error.type('height must be a number');
+                if (!Bread.isNumber(height)) throw error.type('height must be a number');
                 this.y -= height + (((1 - Math.ceil(Math.abs(height) / height)) / 2) * height);
                 this.height = height;
             } catch (e) {
@@ -97,7 +95,6 @@
 
     RectangleMix = Bread.augment(Body, [Rectangle, Line]);
     Bread.rectangle = rectangle;
-    debugger
     Bread.Rectangle = RectangleMix;
 
 })(window, window.Bread)

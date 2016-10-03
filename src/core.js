@@ -3,9 +3,9 @@
     'use strict';
 
     var Bread = {
-        v: '0.0.0',
+        v: '0.0.25',
         universe: CreateUniverse
-    }
+    };
 
     var context;
 

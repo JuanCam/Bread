@@ -2,15 +2,11 @@
 
     'use strict';
 
-    var error = Bread.error;
-    var isBody = Bread.methods.isBody;
-    var isNumber = Bread.methods.isNumber;
-    var inRange = Bread.methods.inRange;
-    var pluck = Bread.methods.pluck;
-    var Body = Bread.Body;
-    var Point = Bread.Point;
-    var LineMix;
-    var Pi = Math.PI;
+    var error, Body, Point, LineMix, Pi;
+    error = Bread.error();
+    Body = Bread.Body;
+    Point = Bread.Point;
+    Pi = Math.PI;
 
     error.filename = 'line.js';
 
@@ -30,11 +26,12 @@
 
     function line(attrs) {
         try {
+            var fPoint, instance;
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
             /*Create an object for the first point*/
-            var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
-            var instance = new LineMix({
+            fPoint = Bread.point({ x: attrs.x, y: attrs.y });
+            instance = new LineMix({
                 x: attrs.x,
                 y: attrs.y
             });
@@ -54,20 +51,20 @@
 
         collision: function(line) {
             try {
-                if (!isBody(line)) throw error.type('line must be a body');
-                var p = 0;
-                var sortX = [];
-                var sortY = [];
-                var d = 0;
-                var dirLine, cutPnt, flag;
+                var p, sortX, sortY, d, dirLine, cutPnt, flag;
+                if (!Bread.isBody(line)) throw error.type('line must be a body');
+                p = 0;
+                sortX = [];
+                sortY = [];
+                d = 0;
                 for (; p < this.allPoints.length; p++) {
                     dirLine = guidePoint.call(this, p);
                     cutPnt = line.cutPoints(dirLine, p, p);
                     d = this.allPoints[p].distance(cutPnt);
-                    sortX = pluck(line.allPoints, 'x').sort(compare);
-                    sortY = pluck(line.allPoints, 'y').sort(compare);
+                    sortX = Bread.pluck(line.allPoints, 'x').sort(_compare);
+                    sortY = Bread.pluck(line.allPoints, 'y').sort(_compare);
                     flag = d <= Math.abs(this.speed);
-                    flag = flag && inRange(cutPnt.x, sortX[0], sortX[1]) && inRange(cutPnt.y, sortY[0], sortY[1]);
+                    flag = flag && Bread.inRange(cutPnt.x, sortX[0], sortX[1]) && Bread.inRange(cutPnt.y, sortY[0], sortY[1]);
                     if (flag) break;
                 }
                 return flag;
@@ -96,14 +93,22 @@
                 this.points[p].move();
             }
         },
+        clone: function() {
+            var line = Bread.Body.prototype.clone.call(this);
+            line.points = [];
+            Bread.forEach(this.points, function(point) {
+                line.points.push(Bread.Body.prototype.clone.call(point));
+            });
+            return line;
+        },
         cutPoints: function(line, n1, n2) {
             /*Get cut points of interpolated lines*/
-            var points = this.allPoints;
-            var s1 = (n1 >= points.length - 1) ? n1 - 1 : n1;
-            var s2 = (n2 >= points.length - 1) ? n2 - 1 : n2;
-            var b1 = getYIntersec.call(line, n1, s1);
-            var b2 = getYIntersec.call(this, n2, s2);
-            var x, y;
+            var x, y, points, s1, s2, b1, b2;
+            points = this.allPoints;
+            s1 = (n1 >= points.length - 1) ? n1 - 1 : n1;
+            s2 = (n2 >= points.length - 1) ? n2 - 1 : n2;
+            b1 = getYIntersec.call(line, n1, s1);
+            b2 = getYIntersec.call(this, n2, s2);
 
             if (b1 === Infinity || b2 === Infinity) {
                 x = points[n2].x;
@@ -112,13 +117,43 @@
                 x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
                 y = x * line.slopes[s1] + b1;
             }
-
-            return Bread.point({
-                x: x,
-                y: y
-            });
+            return (x && y) ? Bread.point({ x: x, y: y }) : null;
         }
     };
+
+    function _draw(points) {
+        var p = points.length - 1;
+        while (p >= 0) {
+            this.context.lineTo(points[p].x, points[p].y);
+            p--;
+        }
+    }
+
+    function _slopes(points) {
+        var p, slope, slopes;
+        p = points.length - 1;
+        slopes = [];
+        while (p > 0) {
+            slope = (points[p].y - points[p - 1].y) / (points[p].x - points[p - 1].x)
+            slopes.push(slope);
+            p--;
+        }
+        return slopes;
+    }
+
+    function _perimeter(points) {
+        var p, perimeter;
+        p = points.length - 1;
+        while (p >= 0) {
+            perimeter += points[p].distance(points[p - 1]);
+            p--;
+        }
+        return perimeter;
+    }
+
+    function _compare(a, b) {
+        return a - b;
+    }
 
     Object.defineProperty(Line.prototype, 'allPoints', {
         get: function() {
@@ -129,20 +164,7 @@
     Object.defineProperty(Line.prototype, 'perimeter', {
 
         get: function() {
-            var p = this.points.length - 1;
-            var perimeter = 0;
-
-            function _calculate(points) {
-
-                if (p > 0) {
-                    perimeter += points[p].distance(points[p - 1]);
-                    p--;
-                    return _calculate(points);
-                } else {
-                    return perimeter;
-                }
-            }
-            return _calculate(this.points)
+            return _perimeter(this.points);
         }
     });
 
@@ -150,21 +172,7 @@
 
         get: function() {
             var points = this.allPoints;
-            var p = points.length - 1;
-            var slopes = []
-            var line = this;
-
-            function _calculate(points) {
-                if (p > 0) {
-                    var slope = (points[p].y - points[p - 1].y) / (points[p].x - points[p - 1].x)
-                    slopes.push(slope);
-                    p--;
-                    return _calculate(points);
-                } else {
-                    return slopes;
-                }
-            }
-            return _calculate(points)
+            return _slopes(points);
         }
     });
 
@@ -174,23 +182,7 @@
     });
 
     function drawPoints(points) {
-        var p = points.length - 1;
-        var line = this;
-
-        function _draw(points) {
-            if (p >= 0) {
-                line.context.lineTo(points[p].x, points[p].y);
-                p--;
-                return _draw(points);
-            } else {
-                return true;
-            }
-        }
-        return _draw(points);
-    }
-
-    function compare(a, b) {
-        return a - b;
+        return _draw.call(this, points);
     }
 
     function guidePoint(p) {
@@ -199,32 +191,9 @@
         return point.directionLine();
     }
 
-    function perpendicularSlopes(slopes) {
-        var s = slopes.length - 1;
-        var perpnSlopes = [];
-
-        function _perpendicular(slopes) {
-            if (s >= 0) {
-                try {
-                    if (!isNumber(slopes[s])) throw error.type('slope must be a number');
-                    var angle = Math.atan(slopes[s]);
-                    perpnSlopes.push(angle + (Pi / 2));
-                    return _perpendicular(slopes);
-                } catch (e) {
-                    error.show(e);
-                }
-            } else {
-                return perpnSlopes;
-            }
-        }
-        return _perpendicular(slopes);
-    }
-
     function getYIntersec(n, s) {
-
         var slopes = this.slopes;
         var points = this.allPoints;
-
         return points[n].y - points[n].x * slopes[s];
     }
 

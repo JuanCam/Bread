@@ -1,14 +1,12 @@
 (function(w, Bread) {
 
     'use strict';
-
-    var error = Bread.error;
-    var isNumb = Bread.methods.isNumber;
-    var isBody = Bread.methods.isBody;
-    var Body = Bread.Body;
-    var Arc = Bread.Arc;
-    var CircleMix;
-    var Pi = Math.PI;
+    
+    var error, Body, Arc, CircleMix, Pi;
+    error = Bread.error();
+    Body = Bread.Body;
+    Arc = Bread.Arc;
+    Pi = Math.PI;
 
     error.filename = 'circle.js';
 
@@ -27,7 +25,7 @@
 
     function circle(attrs) {
         try {
-            if (!isNumb(attrs.radius)) throw error.type('radius must be a number');
+            if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
 
             var instance = new CircleMix({
                 x: attrs.x,
@@ -50,12 +48,12 @@
 
         collision: function(circle) {
             try {
-
-                if (!isBody(circle)) throw error.type('circle must be a body');
+                var radius, radiusV, hypotenuse;
+                if (!Bread.isBody(circle)) throw error.type('circle must be a body');
                 if (!circle.radius) throw error.type('radius must be a number');
-                var radius = this.radius;
-                var radiusV = circle.radius; //Visitor's radius
-                var hypotenuse = this.distance(circle);
+                radius = this.radius;
+                radiusV = circle.radius; //Visitor's radius
+                hypotenuse = this.distance(circle);
 
                 return (hypotenuse <= (radius + radiusV));
 

@@ -1,7 +1,8 @@
 (function(w, Bread) {
 
-    var error = Bread.error;
-    var isNumb = Bread.methods.isNumber;
+    'use strict';
+    
+    var error = Bread.error();
     error.filename = 'groups.js';
 
     if (!w.Bread) {
@@ -11,33 +12,28 @@
     }
 
     function Group() {
-
+        /*Group Class*/
     }
 
-    function primitive() {
+    function groupFact() {
         return Bread.augment(Array, [Group]);
     }
 
     function groups() {
-        var b = 0;
 
         function _createGroup(body, attrs, len) {
-
-            if (b < len) {
-
+            var b = 0;
+            while (b < len) {
                 this.push(body(attrs));
                 b++;
-                return _createGroup.call(this, body, len);
-            } else {
-                b = 0;
-                return this;
             }
+            return this;
         }
 
         function group(body, attrs, len) {
-
-            var extended = primitive();
-            var instance = new extended();
+            var extended, instance;
+            extended = groupFact();
+            instance = new extended();
             if (body) {
                 return _createGroup.call(instance, body, attrs, len);
             }
@@ -45,16 +41,18 @@
 
         return {
             points: function(attrs, len) {
-                var body = Bread.point;
-                var att = {
+                var body, att;
+                body = Bread.point;
+                att = {
                     x: attrs.x,
                     y: attrs.y
                 };
                 return group(body, att, len);
             },
             circles: function(attrs, len) {
-                var body = Bread.circle;
-                var att = {
+                var body, att;
+                body = Bread.circle;
+                att = {
                     x: attrs.x,
                     y: attrs.y,
                     radius: attrs.radius,
@@ -63,7 +61,8 @@
                 return group(body, att, len);
             },
             arcs: function(attrs, len) {
-                var body = Bread.arc;
+                var body, att;
+                body = Bread.arc;
                 att = {
                     x: attrs.x,
                     y: attrs.y,
@@ -75,8 +74,9 @@
                 return group(body, att, len);
             },
             rectangles: function(attrs, len) {
-                var body = Bread.rectangle;
-                var att = {
+                var body, att;
+                body = Bread.rectangle;
+                att = {
                     x: attrs.x,
                     y: attrs.y,
                     width: attrs.width,
@@ -85,8 +85,9 @@
                 return group(body, att, len);
             },
             lines: function(attrs, len) {
-                var body = Bread.line();
-                var att = {
+                var body, att;
+                body = Bread.line();
+                att = {
                     x: attrs.x,
                     y: attrs.y,
                     points: attrs.points
@@ -97,17 +98,14 @@
     }
     Group.prototype = {
 
-        setAt: function() {
-
-        },
         render: function() {
-            this.forEach(function(body) {
+            Bread.forEach(this, function(body) {
                 body.render();
             })
         }
     }
 
-    Bread.Group = primitive();
+    Bread.Group = groupFact();
     Bread.groups = groups();
 
 })(window, window.Bread)

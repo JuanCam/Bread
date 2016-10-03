@@ -1,6 +1,6 @@
 {
-  "name": "breadjs",
-  "version": "0.0.21",
+  "name": "bread",
+  "version": "0.0.25",
   "description": "",
   "devDependencies": {
     "grunt": "~0.4.5",

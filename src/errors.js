@@ -50,6 +50,6 @@
         name: 'IncludeError',
         important: 'Fatal Error!'
     }
-    Bread.error = errors();
+    Bread.error = errors;
 
 })(window, window.Bread)
