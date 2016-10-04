@@ -16,6 +16,11 @@
         y: 45,
         radius: 10
     });
+    var circ3 = Bread.circle({
+        x: 220,
+        y: 145,
+        radius: 10
+    });
     var circlesGrp = Bread.groups.circles({
         x: 160,
         y: 145,
@@ -33,6 +38,12 @@
         y: 20,
         angle: 0
     });
+    var pnt3 = Bread.point({
+        //x: 390,
+        x: 350,
+        y: 190,
+        angle: 0
+    });
     var line1 = Bread.line({
         x: 270,
         y: 160,
@@ -43,15 +54,21 @@
         y: 110,
         points: [pnt2]
     });
-    firstReality.addGroup([circ1, circ2]);
+    var line3 = Bread.line({
+        x: 300,
+        y: 100,
+        points: [pnt3]
+    });
+    firstReality.addGroup([circ1, circ2, circ3]);
     firstReality.addGroup(circlesGrp);
-    firstReality.addGroup([line1, line2]);
+    firstReality.addGroup([line1, line2, line3]);
 
     line1.speed = 3;
+    circ3.speed = 2;
     line1.angle = -0.5;
     circ1.speed = 2;
     var accx2 = -0.01;
-    
+
     firstReality.animation(function() {
 
         circ2.accelerate(accx2, 0.02);
@@ -64,10 +81,13 @@
         }
         circ1.render();
         circ2.render();
+        circ3.render();
         line1.render();
         line2.render();
-        circlesGrp.render();
+        line3.render();
 
+        circlesGrp.render();
+        circ3.reach(Bread.point({ x: 400, y: 105 }), [line3, line2]);
         var dir = line1.direction()
         if (line1.collision(line2)) {
             line1.impulse(1.5, 0.02, line1.angle - Math.PI / 1.2);

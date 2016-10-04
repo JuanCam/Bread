@@ -172,14 +172,15 @@
     });
 
     function linesInPath(lines) {
-        var dirLine = this.directionLine();
-        var cutPnt;
-        var l = lines.length - 1;
-        var linesPth = [];
-
+        var dirLine, cutPnt, linesPth;
+        dirLine = this.directionLine();
+        linesPth = [];
         Bread.forEach(lines, function(line, ind) {
+            var isInX, isInY;
             cutPnt = line.cutPoints(dirLine, ind, ind);
-            if (cutPnt) {
+            isInX = Bread.inRange(cutPnt.x, line.x, line.points[0].x);
+            isInY = Bread.inRange(cutPnt.y, line.y, line.points[0].y);
+            if (cutPnt && isInX && isInY) {
                 linesPth.push({
                     line: line,
                     cutPnt: cutPnt
@@ -190,25 +191,34 @@
     }
 
     function getCloseLine(lines) {
-        var localPnt, minD, distances,lineCl;
+        var localPnt, minD, distances, lineCl;
         localPnt = this;
         distances = Bread.map(lines, function(line) {
             return localPnt.distance(line.cutPnt);
         });
         minD = Math.min.apply(null, distances);
         lineCl = lines[distances.indexOf(minD)].line.clone();
-        if (lineCl.allPoints[0].x > lineCl.allPoints[1].x) {
-            lineCl.x = lineCl.x + 4;
-            lineCl.y = lineCl.x + 4 * lineCl.slopes[0];
-            lineCl.allPoints[1].x = lineCl.allPoints[1].x - 4;
-            lineCl.allPoints[1].y = lineCl.allPoints[1].x - 4 * lineCl.slopes[0];
+        return extrapolateLine(lineCl);
+    }
+
+    function extrapolateLine(line) {
+        var points = line.allPoints;
+
+        if (points[0].x > points[1].x) {
+            line.xdef = line.x + 4;
+            line.points[0].x = line.points[0].x - 4;
         } else {
-            lineCl.x = lineCl.x - 4;
-            lineCl.y = lineCl.x - 4 * lineCl.slopes[0];
-            lineCl.allPoints[1].x = lineCl.allPoints[1].x + 4;
-            lineCl.allPoints[1].y = lineCl.allPoints[1].x + 4 * lineCl.slopes[0];
+            line.xdef = line.x - 4;
+            line.points[0].x = line.points[0].x + 4;
         }
-        return lineCl;
+        if (points[0].y > points[1].y) {
+            line.ydef = line.x + 4 * line.slopes[0];
+            line.points[0].y = line.points[0].x - 4 * line.slopes[0];
+        } else {
+            line.points[0].y = line.points[0].x + 4 * line.slopes[0];
+            line.ydef = line.x - 4 * line.slopes[0];
+        }
+        return line;
     }
 
     function getClosePoint(points) {

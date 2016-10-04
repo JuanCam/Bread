@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var error, Body, Point, LineMix, Pi;
+    var error, Body, Point, LineMix, Pi, fPoint;
     error = Bread.error();
     Body = Bread.Body;
     Point = Bread.Point;
@@ -26,7 +26,7 @@
 
     function line(attrs) {
         try {
-            var fPoint, instance;
+            var instance;
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
             /*Create an object for the first point*/
@@ -179,6 +179,20 @@
     Object.defineProperty(Line.prototype, 'line', {
         'enumerable': true,
         'value': true
+    });
+
+    Object.defineProperty(Line.prototype, 'xdef', {
+        set: function(x) {
+            this.x = x;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
+    Object.defineProperty(Line.prototype, 'ydef', {
+        set: function(y) {
+            this.y = y;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
     });
 
     function drawPoints(points) {

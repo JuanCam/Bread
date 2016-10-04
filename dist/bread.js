@@ -697,14 +697,15 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     });
 
     function linesInPath(lines) {
-        var dirLine = this.directionLine();
-        var cutPnt;
-        var l = lines.length - 1;
-        var linesPth = [];
-
+        var dirLine, cutPnt, linesPth;
+        dirLine = this.directionLine();
+        linesPth = [];
         Bread.forEach(lines, function(line, ind) {
+            var isInX, isInY;
             cutPnt = line.cutPoints(dirLine, ind, ind);
-            if (cutPnt) {
+            isInX = Bread.inRange(cutPnt.x, line.x, line.points[0].x);
+            isInY = Bread.inRange(cutPnt.y, line.y, line.points[0].y);
+            if (cutPnt && isInX && isInY) {
                 linesPth.push({
                     line: line,
                     cutPnt: cutPnt
@@ -715,25 +716,34 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     }
 
     function getCloseLine(lines) {
-        var localPnt, minD, distances,lineCl;
+        var localPnt, minD, distances, lineCl;
         localPnt = this;
         distances = Bread.map(lines, function(line) {
             return localPnt.distance(line.cutPnt);
         });
         minD = Math.min.apply(null, distances);
         lineCl = lines[distances.indexOf(minD)].line.clone();
-        if (lineCl.allPoints[0].x > lineCl.allPoints[1].x) {
-            lineCl.x = lineCl.x + 4;
-            lineCl.y = lineCl.x + 4 * lineCl.slopes[0];
-            lineCl.allPoints[1].x = lineCl.allPoints[1].x - 4;
-            lineCl.allPoints[1].y = lineCl.allPoints[1].x - 4 * lineCl.slopes[0];
+        return extrapolateLine(lineCl);
+    }
+
+    function extrapolateLine(line) {
+        var points = line.allPoints;
+
+        if (points[0].x > points[1].x) {
+            line.xdef = line.x + 4;
+            line.points[0].x = line.points[0].x - 4;
         } else {
-            lineCl.x = lineCl.x - 4;
-            lineCl.y = lineCl.x - 4 * lineCl.slopes[0];
-            lineCl.allPoints[1].x = lineCl.allPoints[1].x + 4;
-            lineCl.allPoints[1].y = lineCl.allPoints[1].x + 4 * lineCl.slopes[0];
+            line.xdef = line.x - 4;
+            line.points[0].x = line.points[0].x + 4;
         }
-        return lineCl;
+        if (points[0].y > points[1].y) {
+            line.ydef = line.x + 4 * line.slopes[0];
+            line.points[0].y = line.points[0].x - 4 * line.slopes[0];
+        } else {
+            line.points[0].y = line.points[0].x + 4 * line.slopes[0];
+            line.ydef = line.x - 4 * line.slopes[0];
+        }
+        return line;
     }
 
     function getClosePoint(points) {
@@ -744,10 +754,11 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     Bread.point = point;
     Bread.Point = PointMix;
 
-})(window, window.Bread);/* Module file: src/line.js */
+})(window, window.Bread)
+;/* Module file: src/line.js */
 (function(w, Bread) {
 
-var error, Body, Point, LineMix, Pi;
+var error, Body, Point, LineMix, Pi, fPoint;
     error = Bread.error();
     Body = Bread.Body;
     Point = Bread.Point;
@@ -771,7 +782,7 @@ var error, Body, Point, LineMix, Pi;
 
     function line(attrs) {
         try {
-            var fPoint, instance;
+            var instance;
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
             /*Create an object for the first point*/
@@ -926,6 +937,20 @@ var error, Body, Point, LineMix, Pi;
         'value': true
     });
 
+    Object.defineProperty(Line.prototype, 'xdef', {
+        set: function(x) {
+            this.x = x;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
+    Object.defineProperty(Line.prototype, 'ydef', {
+        set: function(y) {
+            this.y = y;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
     function drawPoints(points) {
         return _draw.call(this, points);
     }
@@ -946,7 +971,8 @@ var error, Body, Point, LineMix, Pi;
     Bread.line = line;
     Bread.Line = LineMix;
 
-})(window, window.Bread);/* Module file: src/arc.js */
+})(window, window.Bread)
+;/* Module file: src/arc.js */
 (function(w, Bread) {
 
 var error, Body, Point, ArcMix;

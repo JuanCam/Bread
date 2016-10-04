@@ -29,7 +29,7 @@ module.exports = function(grunt) {
                             index: 'index.html'
                         }
                     },
-                    keepalive: true
+                    livereload: true
                 }
             }
         },
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
                 separator: ';',
                 banner: "'use strict';\n",
                 process: function(src, filepath) {
-                    return '/* Module file: ' + filepath  + ' */\n' +
+                    return '/* Module file: ' + filepath + ' */\n' +
                         src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
                 },
             },
@@ -50,13 +50,25 @@ module.exports = function(grunt) {
                 src: config.sources,
                 dest: 'app/js/<%= pkg.name %>.js',
             }
+        },
+        watch: {
+            concatSrc: {
+                files: 'src/**.js',
+                tasks: ['concat:dist', 'concat:app']
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+
+    grunt.event.on('watch:concatSrc', function(action, filepath, target) {
+        grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
+    });
 
     // Default task(s).
     grunt.registerTask('default', ['concat:dist']);
-    grunt.registerTask('lift', ['concat:app', 'connect'])
+    grunt.registerTask('lift', ['concat:app', 'connect:server', 'watch']);
+    grunt.registerTask('concatSrc', ['watch:concatSrc']);
 }
