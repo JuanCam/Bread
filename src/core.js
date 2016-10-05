@@ -41,6 +41,7 @@
                 return false;
             }
             var bd = group.length - 1;
+            
             for (; bd >= 0; bd--) {
                 this.addIt(group[bd]);
             }

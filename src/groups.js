@@ -1,7 +1,7 @@
 (function(w, Bread) {
 
     'use strict';
-    
+
     var error = Bread.error();
     error.filename = 'groups.js';
 
@@ -19,25 +19,31 @@
         return Bread.augment(Array, [Group]);
     }
 
+    function _createGroup(body, attrs, len) {
+        var b = 0;
+        while (b < len) {
+            if (Bread.isObject(attrs)) {
+                this.push(body(attrs));
+            } else {
+                this.push(body[b]);
+            }
+            b++;
+        }
+        return this;
+    }
+
+    function group(body, attrs, len) {
+        var extended, instance;
+        extended = groupFact();
+        instance = new extended();
+        if (body) {
+            return _createGroup.call(instance, body, attrs, len);
+        }
+    }
+
     function groups() {
 
-        function _createGroup(body, attrs, len) {
-            var b = 0;
-            while (b < len) {
-                this.push(body(attrs));
-                b++;
-            }
-            return this;
-        }
 
-        function group(body, attrs, len) {
-            var extended, instance;
-            extended = groupFact();
-            instance = new extended();
-            if (body) {
-                return _createGroup.call(instance, body, attrs, len);
-            }
-        }
 
         return {
             points: function(attrs, len) {
@@ -102,10 +108,23 @@
             Bread.forEach(this, function(body) {
                 body.render();
             })
+        },
+        add: function(objects) {
+            var grp = this;
+            if (Bread.isObject(objects)) {
+                this.push(objects)
+            }
+            if (Bread.isArray(objects)) {
+                Bread.forEach(objects, function(obj) {
+                    grp.push(obj);
+                });
+            }
         }
     }
 
-    Bread.Group = groupFact();
+    Bread.group = function(attrs) {
+        return group(attrs, undefined, attrs.length);
+    };
     Bread.groups = groups();
 
 })(window, window.Bread)

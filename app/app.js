@@ -33,13 +33,11 @@
         angle: 0
     });
     var pnt2 = Bread.point({
-        //x: 390,
         x: 290,
         y: 20,
         angle: 0
     });
     var pnt3 = Bread.point({
-        //x: 390,
         x: 350,
         y: 190,
         angle: 0
@@ -51,7 +49,7 @@
     });
     var line2 = Bread.line({
         x: 390,
-        y: 110,
+        y: 120,
         points: [pnt2]
     });
     var line3 = Bread.line({
@@ -59,10 +57,12 @@
         y: 100,
         points: [pnt3]
     });
-    firstReality.addGroup([circ1, circ2, circ3]);
-    firstReality.addGroup(circlesGrp);
-    firstReality.addGroup([line1, line2, line3]);
 
+    /*Heterogeneous group*/
+    var customGroup = Bread.group([circ1, circ2, circ3, line1, line2, line3]);
+
+    firstReality.addGroup(circlesGrp);
+    firstReality.addGroup(customGroup);
     line1.speed = 3;
     circ3.speed = 2;
     line1.angle = -0.5;
@@ -73,26 +73,22 @@
 
         circ2.accelerate(accx2, 0.02);
         circ1.accelerate(0.01, 0.02);
+
         if (line1.speed > 0)
             line1.move();
         else {
             line1.speed = 3;
             line1.angle = -0.5;
         }
-        circ1.render();
-        circ2.render();
-        circ3.render();
-        line1.render();
-        line2.render();
-        line3.render();
 
+        customGroup.render();
         circlesGrp.render();
-        circ3.reach(Bread.point({ x: 400, y: 105 }), [line3, line2]);
-        var dir = line1.direction()
+        circ3.reach(Bread.point({ x: 400, y: 99 }), [line3, line2]);
+        var dir = line1.direction();
+
         if (line1.collision(line2)) {
             line1.impulse(1.5, 0.02, line1.angle - Math.PI / 1.2);
         }
-
         if (circ1.y > canvas.height) {
             circ1.bounce(0.01, -0.9);
         }
@@ -101,4 +97,5 @@
             accx2 = 0.01;
         }
     });
+
 })(window)

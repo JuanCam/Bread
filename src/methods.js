@@ -58,7 +58,7 @@
             }
             return mapped;
         }
-        
+
         function _pluck(collection, field) {
             var e, len, i, plucked;
             if (!Bread.isArray(collection)) {
@@ -179,7 +179,8 @@
                 return typeof variable === 'function';
             },
             isObject: function(variable) {
-                return variable.toString() == '[object Object]';
+                if (variable) return variable.toString() == '[object Object]';
+                return false;
             }
         };
 

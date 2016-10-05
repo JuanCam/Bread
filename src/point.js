@@ -14,8 +14,6 @@
     }
 
     /*Private properties*/
-    xgoes = 1;
-    ygoes = 1;
     queuedir = [];
 
     function Point(attrs) {
@@ -49,12 +47,15 @@
 
 
     Point.prototype = {
+        xgoes: 1,
+        ygoes: 1,
         distance: function(point) {
             var d;
             try {
                 if (!Bread.isBody(point)) throw error.type('point must be a body');
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
+
                 d = Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
 
             } catch (e) {
@@ -74,9 +75,8 @@
 
                 dx = ((point.x - this.x) != 0) ? point.x - this.x : 1;
                 dy = ((point.y - this.y) != 0) ? point.y - this.y : 1;
-                xgoes = dx / Math.abs(dx);
-                ygoes = dy / Math.abs(dy);
-                this.angle = Math.atan(Math.abs(dy) / Math.abs(dx));
+                toward.call(this, dx, dy);
+                this.angle = Math.atan(dy / dx);
 
             } catch (e) {
                 error.show(e);
@@ -110,14 +110,13 @@
         },
         directionLine: function() {
             var slope, b, xp, point;
-            slope = Math.tan(this.angle);
+            slope = Math.tan(this.ygoes * this.angle);
             b = this.y - this.x * slope;
-            xp = this.x + 10;
+            xp = this.x + this.xgoes * 10;
             point = Bread.point({
                 x: xp,
                 y: xp * slope + b
             });
-
             return Bread.line({
                 x: this.x,
                 y: this.y,
@@ -127,24 +126,24 @@
         reach: function(point, lines) {
 
             try {
-                var linesPth, closeLine, stop, points;
+                var linesPth, closeLine, stop, points, target;
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
-                this.pointTo((reachPnt) ? reachPnt : point);
-                linesPth = linesInPath.call(this, lines);
+                target = (reachPnt) ? reachPnt : point
+                this.pointTo(target);
+                linesPth = linesInPath.call(this, lines, target);
+
                 if (linesPth.length) {
                     closeLine = getCloseLine.call(this, linesPth);
                     points = closeLine.allPoints;
                     reachPnt = getClosePoint.call(this, points);
                 } else {
-                    if (this.distance(point) > 0) {
-                        reachPnt = undefined;
-                    } else {
+                    if (this.distance(reachPnt) <= this.speed) {
+                        reachPnt = point;
                         stop = true;
                     }
                 }
                 if (!stop) this.move();
-                return reachPnt || point;
             } catch (e) {
                 error.show(e);
             }
@@ -157,9 +156,8 @@
             try {
                 var angle;
                 if (!Bread.isNumber(this.angle)) throw error.type('angle must be a number');
-                angle = (Math.PI / 2) + (ygoes * this.angle);
-                angle = xgoes * angle;
-                return angle;
+                angle = (Math.PI / 2) + (this.ygoes * this.angle);
+                return this.xgoes * angle;
             } catch (e) {
                 error.show(e);
             }
@@ -171,16 +169,24 @@
         'value': true
     });
 
-    function linesInPath(lines) {
-        var dirLine, cutPnt, linesPth;
+    function _compare(a, b) {
+        return a - b;
+    }
+
+    function linesInPath(lines, target) {
+        var dirLine, cutPnt, linesPth, point;
         dirLine = this.directionLine();
         linesPth = [];
+        point = this;
         Bread.forEach(lines, function(line, ind) {
-            var isInX, isInY;
-            cutPnt = line.cutPoints(dirLine, ind, ind);
-            isInX = Bread.inRange(cutPnt.x, line.x, line.points[0].x);
-            isInY = Bread.inRange(cutPnt.y, line.y, line.points[0].y);
-            if (cutPnt && isInX && isInY) {
+            var isInX, isInY, x, y, isClose;
+            cutPnt = line.cutPoints(dirLine, 0, 0);
+            x = [line.x, line.points[0].x].sort(_compare);
+            y = [line.y, line.points[0].y].sort(_compare);
+            isInX = Bread.inRange(cutPnt.x, x[0], x[1]);
+            isInY = Bread.inRange(cutPnt.y, y[0], y[1]);
+            isClose = cutPnt.distance(point) < target.distance(point);
+            if (cutPnt && isInX && isInY && isClose) {
                 linesPth.push({
                     line: line,
                     cutPnt: cutPnt
@@ -202,27 +208,37 @@
     }
 
     function extrapolateLine(line) {
-        var points = line.allPoints;
-
+        var points, slopes, x, y;
+        points = line.allPoints;
+        slopes = line.slopes;
         if (points[0].x > points[1].x) {
-            line.xdef = line.x + 4;
-            line.points[0].x = line.points[0].x - 4;
+            x = line.x + 4;
+            points[0].x = points[0].x - 4;
         } else {
-            line.xdef = line.x - 4;
-            line.points[0].x = line.points[0].x + 4;
+            x = line.x - 4;
+            points[0].x = points[0].x + 4;
         }
         if (points[0].y > points[1].y) {
-            line.ydef = line.x + 4 * line.slopes[0];
-            line.points[0].y = line.points[0].x - 4 * line.slopes[0];
+            y = line.y + 4 * slopes[0];
+            points[0].y = points[0].y - 4 * slopes[0];
         } else {
-            line.points[0].y = line.points[0].x + 4 * line.slopes[0];
-            line.ydef = line.x - 4 * line.slopes[0];
+            points[0].y = points[0].y + 4 * slopes[0];
+            y = line.y - 4 * slopes[0];
         }
+        line.xdef = x;
+        line.ydef = y;
+        line.points = points;
         return line;
     }
 
     function getClosePoint(points) {
         return (points[0].distance(this) > points[1].distance(this)) ? points[1] : points[0];
+    }
+
+    function toward(dx, dy) {
+
+        this.xgoes = dx / Math.abs(dx);
+        this.ygoes = dy / Math.abs(dy);
     }
 
     PointMix = Bread.augment(Body, [Point]);
