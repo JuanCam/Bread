@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
     'use strict';
     var config = {
-        name: 'Name: <%= pkg.name %>-<%= pkg.version %>\n',
+        name: 'Name: <%= pkg.name %>@<%= pkg.version %>\n',
         author: 'Author: <%= pkg.author %>. Email: <%= pkg.email %>\n',
         description: '<%= pkg.description %>.\n',
         repo: 'Repo: <%= pkg.url %>.',
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: config.sources,
-                dest: 'dist/<%= pkg.name %>.js',
+                dest: 'dist/bread.js',
             }
         },
         watch: {

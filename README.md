@@ -6,37 +6,45 @@ a shape and add them to the 'universe'.
 With the main module you can create 'universe' objects and 'body' objects, these are parent modules.
 Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached to the behaviour of Body.
 
-## Dependencies:
+## Hierarchy:
 - bread.js
 
   - universe.js
 
   - body.js
 
-  	- point.js
+    - point.js
 
-  		- line.js
+      - line.js
 
-    		- rectangle.js
+        - rectangle.js
 
-    	- arc.js
+      - arc.js
 
-    		- circle.js
+        - circle.js
 
 
-**Note: Take into account dependencies.**
+#### Library extension
 
-#### Examples
-
-If you want to view or extend my examples go to the **app** folder and follow these steps:
+If you want to extend or add new features to the library, please follow this steps:
 
 * You must have installed Node.js (https://nodejs.org/en/) and Node Package Manager
 * Run: ```npm install```
-* Execute ```grunt lift```
-* Visit http://localhost:8001/
-* You can check the app/app.js file.
+* This project is modular, so you must include or modify modules in the src folder.
+* Execute ```grunt build``` if you want to **watch** changes over src folder.
+* If you just want to build dist/bread.js without watching src, run ```grunt```.
+* If you include new files, don't forget to add them in **sources**, in the Gruntfile.js.
 
-If you want to use the library externally, use the file in the dist folder.
+## Getting started
+
+First of all fork or clone this repo, you will find the source code in the app/src folder, **Please include all files
+since in this moment the project is in development stage**.
+Once you have the source code, copy the src folder and place it inside a js/bread folder in your project files 
+(this is according to your folder structure), then include all src files (Remember dependencies) and inside 
+any html file create a canvas element.
+```
+<canvas id="canvas_el"></canvas>
+```
 
 ## Factories
 
@@ -44,11 +52,11 @@ The library provides a set of factories which provides a handy way to create obj
 you invoke their class. I.E. if we want to create a body of type circle, we can do it like this:
 ```javascript
 var firstPoint = Bread.circle({
-	x: 4, 
-	y: 5, 
-	angle: 3.1416,
-	radius: 10,
-	fill:false
+  x: 4, 
+  y: 5, 
+  angle: 3.1416,
+  radius: 10,
+  fill:false
 });
 ```
 or 
@@ -62,6 +70,7 @@ var firstPoint = new Bread.Circle({
 firstPoint.defRaduis = 10;
 firstPoint.fill = false;
 ```
+
 The factories available are the following ones:
 - universe.
 - point.
@@ -70,17 +79,8 @@ The factories available are the following ones:
 - line.
 - arc.
 - groups.
+- text.
 
-## Getting started
-
-First of all fork or clone this repo, you will find the source code in the app/src folder, **Please include all files
-since in this moment the project is in development stage**.
-Once you have the source code, copy the src folder and place it inside a js/bread folder in your project files 
-(this is according to your folder structure), then include all src files (Remember dependencies) and inside 
-any html file create a canvas element.
-```
-<canvas id="canvas_el"></canvas>
-```
 
 ### - Universe
 
@@ -103,29 +103,29 @@ var firstUniverse = Bread.universe({
 
  - **addIt:** Adds a body to the universe, this allows the vody to be rendered in the canvas element:
 
- 	```javascript
- 	firstUniverse.addIt(body);
- 	```
- 	
- 	body: Is an object of body type. (view the Body documentation)
+  ```javascript
+  firstUniverse.addIt(body);
+  ```
+  
+  body: Is an object of body type. (view the Body documentation)
  - **addGroup:** Adds a group of bodies, it recieves an array of bodies or group (Groups will be covered latter)
 
- 	```javascript
- 	firstUniverse.addGroup([body1, body2, ...]);
- 	```
+  ```javascript
+  firstUniverse.addGroup([body1, body2, ...]);
+  ```
 
  - **removeIt:** Adds a body from the universe:
 
- 	```javascript
- 	firstUniverse.removeIt(body);
- 	```
- 	
- 	body: Is an object of body type. (view the Body documentation)
+  ```javascript
+  firstUniverse.removeIt(body);
+  ```
+  
+  body: Is an object of body type. (view the Body documentation)
  - **animation:** Animates the universe using setTimeout. It takes a callback function were you put all the code you want to be animated
 
- 	```javascript
- 	firstUniverse.animation(function() {..})
- 	```
+  ```javascript
+  firstUniverse.animation(function() {..})
+  ```
 
 
 ### - Body
@@ -160,46 +160,46 @@ This methods can be found on all bodies.
 
  - **accelerate:** sets an acceleration to the body, it receives 2 arguments:
 
- 	```javascript
- 	var accx = 0.1;
- 	var accy = 0.2;
- 	body.accelerate(accx, accy);
- 	```
- 	
- 	accx: Is the increment of the speed over the x axis (type number)
- 	
- 	accy: Is the increment of the speed over the y axis (type number)
+  ```javascript
+  var accx = 0.1;
+  var accy = 0.2;
+  body.accelerate(accx, accy);
+  ```
+  
+  accx: Is the increment of the speed over the x axis (type number)
+  
+  accy: Is the increment of the speed over the y axis (type number)
  - **bounce:** makes a body bounce by modifying its speed
 
- 	```javascript
- 	var bnx = 0.1;
- 	var bny = 0.2;
- 	body.bounce(bnx, bny);
- 	```
- 	
- 	bnx: Is the speed over the x axis (type number)
- 	
- 	bny: Is the speed over the y axis (type number)
+  ```javascript
+  var bnx = 0.1;
+  var bny = 0.2;
+  body.bounce(bnx, bny);
+  ```
+  
+  bnx: Is the speed over the x axis (type number)
+  
+  bny: Is the speed over the y axis (type number)
  - **impulse:** changes the body direction and speed, also specifies a friction
 
- 	```javascript
- 	var speed = 0.1;
- 	var frict = 0.2;
- 	var angle = PI/2;
- 	body.impulse(speed, frict, angle);
- 	```
- 	
- 	speed: Is the new body speed (type number)
- 	
- 	frict: It will reduce the speed when the move method is invoked (type number)
- 	
- 	angle: The new body angle in radians (type number)
- 	
+  ```javascript
+  var speed = 0.1;
+  var frict = 0.2;
+  var angle = PI/2;
+  body.impulse(speed, frict, angle);
+  ```
+  
+  speed: Is the new body speed (type number)
+  
+  frict: It will reduce the speed when the move method is invoked (type number)
+  
+  angle: The new body angle in radians (type number)
+  
  - **move:** changes the position of the object according to its speed:
 
- 	```javascript
- 	body.move();
- 	```
+  ```javascript
+  body.move();
+  ```
 
 
 ### - Point
@@ -228,42 +228,42 @@ This methods can be found on all bodies, except for Body.
 
  - **distance:** return the distance to other point:
 
- 	```javascript
- 	pnt2 //Must be a body type
- 	var d = pnt1.distance(pnt2);
- 	```
- 	
- 	pnt2: Is an object that represents a body (type Body or Point)
+  ```javascript
+  pnt2 //Must be a body type
+  var d = pnt1.distance(pnt2);
+  ```
+  
+  pnt2: Is an object that represents a body (type Body or Point)
  - **pointTo:** this method will modify the angle of the object, and make it target another point:
 
- 	```javascript
- 	pnt2 //Must be a body type
- 	pnt1.pointTo(pnt2);
- 	```
- 	
- 	pnt2: Is an object that represents a body (type Body or Point)
+  ```javascript
+  pnt2 //Must be a body type
+  pnt1.pointTo(pnt2);
+  ```
+  
+  pnt2: Is an object that represents a body (type Body or Point)
  - **update:** updates the current coordinates and the angle:
 
- 	```javascript
- 	var x = 3;
- 	var y = 7;
- 	var angle = PI;
- 	pnt1.update(x, y, angle);
- 	```
- 	
- 	x: Is the new x position (type number)
- 	
- 	y: Is the new y position (type number)
- 	
- 	angle: The new point angle in radians (type number)
- 	
+  ```javascript
+  var x = 3;
+  var y = 7;
+  var angle = PI;
+  pnt1.update(x, y, angle);
+  ```
+  
+  x: Is the new x position (type number)
+  
+  y: Is the new y position (type number)
+  
+  angle: The new point angle in radians (type number)
+  
  - **direction:** return an array [x,y] with the point direction according to its last position:
 
- 	```javascript
- 	var dir = pnt1.direction();
- 	```
- 	
- 	dir: Is an array that contains the direction over the x axis in the first position and the y axis in the second one
+  ```javascript
+  var dir = pnt1.direction();
+  ```
+  
+  dir: Is an array that contains the direction over the x axis in the first position and the y axis in the second one
 
 
 ### - Line

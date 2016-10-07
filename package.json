@@ -1,8 +1,8 @@
 {
-    "name": "bread",
-    "version": "0.0.28",
+    "name": "breadjs",
+    "version": "0.0.3",
     "url": "https://github.com/JuanCam/Bread",
-    "email": "juancgr_4@hotmail.com",
+    "email": "juanc1gutierrez@gmail.com",
     "author": "Juan Gutierrez",
     "date": "11/2014",
     "description": "Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas",

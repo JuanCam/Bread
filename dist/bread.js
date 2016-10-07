@@ -1,7 +1,7 @@
 'use strict';
 /*
-Name: bread-0.0.28
-Author: Juan Gutierrez. Email: juancgr_4@hotmail.com
+Name: breadjs@0.0.3
+Author: Juan Gutierrez. Email: juanc1gutierrez@gmail.com
 Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
 Repo: https://github.com/JuanCam/Bread.
 */
@@ -9,7 +9,7 @@ Repo: https://github.com/JuanCam/Bread.
 (function(w) {
 
 var Bread = {
-        v: '0.0.28',
+        v: '0.0.3',
         universe: CreateUniverse
     };
 
@@ -764,7 +764,8 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     Bread.point = point;
     Bread.Point = PointMix;
 
-})(window, window.Bread);/* Module file: src/line.js */
+})(window, window.Bread)
+;/* Module file: src/line.js */
 (function(w, Bread) {
 
 var error, Body, Point, LineMix, Pi, fPoint;
@@ -1478,9 +1479,11 @@ var error = Bread.error();
         error.show();
         return false;
     }
-function text (attrs) {
-	return new Text(attrs);
-}
+
+    function text(attrs) {
+        return new Text(attrs);
+    }
+
     function Text(attrs) {
         try {
             if (!attrs.text) throw throw error.declare('string text is not defined');
@@ -1511,5 +1514,5 @@ function text (attrs) {
 
     Bread.Text = Text;
     Bread.text = text;
-    
+
 })(window, window.Bread)

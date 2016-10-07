@@ -10,9 +10,11 @@
         error.show();
         return false;
     }
-function text (attrs) {
-	return new Text(attrs);
-}
+
+    function text(attrs) {
+        return new Text(attrs);
+    }
+
     function Text(attrs) {
         try {
             if (!attrs.text) throw throw error.declare('string text is not defined');
@@ -43,5 +45,5 @@ function text (attrs) {
 
     Bread.Text = Text;
     Bread.text = text;
-    
+
 })(window, window.Bread)
