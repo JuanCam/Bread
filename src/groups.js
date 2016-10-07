@@ -43,8 +43,6 @@
 
     function groups() {
 
-
-
         return {
             points: function(attrs, len) {
                 var body, att;

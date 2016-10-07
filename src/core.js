@@ -3,14 +3,13 @@
     'use strict';
 
     var Bread = {
-        v: '0.0.25',
+        v: '0.0.28',
         universe: CreateUniverse
     };
 
     var context;
 
     function CreateUniverse(attrs) {
-
         return new Universe(attrs);
     }
 

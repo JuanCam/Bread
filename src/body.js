@@ -77,9 +77,10 @@
             }
         },
         clone: function() {
-            var copy, props;
-            copy = {};
-            copy = Object.create(this);
+            var copy, core;
+            core = Bread.augment(Bread.Body, []);
+            core.prototype = Object.getPrototypeOf(this);
+            copy = new core({ x: 0, y: 0 });
             Bread.extend(copy, this);
             return copy;
         }

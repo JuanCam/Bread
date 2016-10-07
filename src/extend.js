@@ -1,7 +1,6 @@
 (function(w, Bread) {
 
     'use strict';
-    
     var error = Bread.error();
     error.filename = 'extend.js';
 

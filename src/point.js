@@ -110,7 +110,7 @@
         },
         directionLine: function() {
             var slope, b, xp, point;
-            slope = Math.tan(this.ygoes * this.angle);
+            slope = Math.tan(this.angle);
             b = this.y - this.x * slope;
             xp = this.x + this.xgoes * 10;
             point = Bread.point({
@@ -123,8 +123,7 @@
                 points: [point]
             })
         },
-        reach: function(point, lines) {
-
+        reach: function(point, lines, space) {
             try {
                 var linesPth, closeLine, stop, points, target;
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
@@ -132,9 +131,8 @@
                 target = (reachPnt) ? reachPnt : point
                 this.pointTo(target);
                 linesPth = linesInPath.call(this, lines, target);
-
                 if (linesPth.length) {
-                    closeLine = getCloseLine.call(this, linesPth);
+                    closeLine = getCloseLine.call(this, linesPth, space);
                     points = closeLine.allPoints;
                     reachPnt = getClosePoint.call(this, points);
                 } else {
@@ -196,7 +194,7 @@
         return linesPth;
     }
 
-    function getCloseLine(lines) {
+    function getCloseLine(lines, space) {
         var localPnt, minD, distances, lineCl;
         localPnt = this;
         distances = Bread.map(lines, function(line) {
@@ -204,31 +202,36 @@
         });
         minD = Math.min.apply(null, distances);
         lineCl = lines[distances.indexOf(minD)].line.clone();
-        return extrapolateLine(lineCl);
+        return extrapolateLine(lineCl, space);
     }
 
-    function extrapolateLine(line) {
-        var points, slopes, x, y;
-        points = line.allPoints;
-        slopes = line.slopes;
-        if (points[0].x > points[1].x) {
-            x = line.x + 4;
-            points[0].x = points[0].x - 4;
-        } else {
-            x = line.x - 4;
-            points[0].x = points[0].x + 4;
-        }
-        if (points[0].y > points[1].y) {
-            y = line.y + 4 * slopes[0];
-            points[0].y = points[0].y - 4 * slopes[0];
-        } else {
-            points[0].y = points[0].y + 4 * slopes[0];
-            y = line.y - 4 * slopes[0];
-        }
+    function extrapolateLine(line, space) {
+        var extrapolated, x, y;
+        extrapolated = extrapolateAxis.call(line,'x',space);
+        x = extrapolated.axis;
+        extrapolated = extrapolateAxis.call(line,'y',space);
+        y = extrapolated.axis;
         line.xdef = x;
         line.ydef = y;
-        line.points = points;
+        line.points = extrapolated.points;
         return line;
+    }
+
+    function extrapolateAxis(axis, space) {
+        var points, slopes, a;
+        points = this.allPoints;
+        slopes = this.slopes;
+        if (points[0][axis] > points[1][axis]) {
+            a = this[axis] + space;
+            points[0][axis] = points[0][axis] - space;
+        } else {
+            a = this[axis] - space;
+            points[0][axis] = points[0][axis] + space;
+        }
+        return {
+            axis: a,
+            points: points
+        };
     }
 
     function getClosePoint(points) {

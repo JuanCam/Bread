@@ -16,36 +16,18 @@
             return false;
         }
 
-        function Extended() {
+        function CoreBase() {
             Base.apply(this, arguments);
         }
 
-        Extended.prototype = Object.create(Base.prototype);//Chain
-        Extended.constructor = Base;
+        CoreBase.prototype = Object.create(Base.prototype);//Chain
+        CoreBase.constructor = Base;
 
         Bread.forEach(mixins, function(mixin, index) {
-            mix(Extended.prototype, mixin.prototype);
+            Bread.extend(CoreBase.prototype, mixin.prototype);
         });
 
-        return Extended;
-    }
-
-    function mix(base, child) {
-        var props = Object.getOwnPropertyNames(child);
-        var p = props.length - 1;
-
-        function _merge() {
-            if (p >= 0) {
-                var propName = props[p];
-                var propDesc = Object.getOwnPropertyDescriptor(child, propName);
-                Object.defineProperty(base, propName, propDesc);
-                p--;
-                return _merge();
-            } else {
-                return true;
-            }
-        }
-        return _merge();
+        return CoreBase;
     }
 
     Bread.augment = augment;

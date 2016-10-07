@@ -1,6 +1,10 @@
 module.exports = function(grunt) {
     'use strict';
     var config = {
+        name: 'Name: <%= pkg.name %>-<%= pkg.version %>\n',
+        author: 'Author: <%= pkg.author %>. Email: <%= pkg.email %>\n',
+        description: '<%= pkg.description %>.\n',
+        repo: 'Repo: <%= pkg.url %>.',
         sources: [
             'src/core.js',
             'src/errors.js',
@@ -14,8 +18,10 @@ module.exports = function(grunt) {
             'src/circle.js',
             'src/rectangle.js',
             'src/groups.js',
-            'src/random.js'
-        ]
+            'src/random.js',
+            'src/text.js'
+        ],
+
     };
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -36,7 +42,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 separator: ';',
-                banner: "'use strict';\n",
+                banner: "'use strict';" + '\n/*\n' + config.name + config.author + config.description + config.repo + '\n*/\n',
                 process: function(src, filepath) {
                     return '/* Module file: ' + filepath + ' */\n' +
                         src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');

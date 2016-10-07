@@ -83,7 +83,7 @@
 
         customGroup.render();
         circlesGrp.render();
-        circ3.reach(Bread.point({ x: 400, y: 99 }), [line3, line2]);
+        circ3.reach(Bread.point({ x: 400, y: 40 }), [line3, line2], 10);
         var dir = line1.direction();
 
         if (line1.collision(line2)) {

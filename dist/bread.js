@@ -1,16 +1,21 @@
 'use strict';
+/*
+Name: bread-0.0.28
+Author: Juan Gutierrez. Email: juancgr_4@hotmail.com
+Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
+Repo: https://github.com/JuanCam/Bread.
+*/
 /* Module file: src/core.js */
 (function(w) {
 
 var Bread = {
-        v: '0.0.25',
+        v: '0.0.28',
         universe: CreateUniverse
     };
 
     var context;
 
     function CreateUniverse(attrs) {
-
         return new Universe(attrs);
     }
 
@@ -402,36 +407,18 @@ var error = Bread.error();
             return false;
         }
 
-        function Extended() {
+        function CoreBase() {
             Base.apply(this, arguments);
         }
 
-        Extended.prototype = Object.create(Base.prototype);//Chain
-        Extended.constructor = Base;
+        CoreBase.prototype = Object.create(Base.prototype);//Chain
+        CoreBase.constructor = Base;
 
         Bread.forEach(mixins, function(mixin, index) {
-            mix(Extended.prototype, mixin.prototype);
+            Bread.extend(CoreBase.prototype, mixin.prototype);
         });
 
-        return Extended;
-    }
-
-    function mix(base, child) {
-        var props = Object.getOwnPropertyNames(child);
-        var p = props.length - 1;
-
-        function _merge() {
-            if (p >= 0) {
-                var propName = props[p];
-                var propDesc = Object.getOwnPropertyDescriptor(child, propName);
-                Object.defineProperty(base, propName, propDesc);
-                p--;
-                return _merge();
-            } else {
-                return true;
-            }
-        }
-        return _merge();
+        return CoreBase;
     }
 
     Bread.augment = augment;
@@ -515,9 +502,10 @@ var error, bodyProto;
             }
         },
         clone: function() {
-            var copy, props;
-            copy = {};
-            copy = Object.create(this);
+            var copy, core;
+            core = Bread.augment(Bread.Body, []);
+            core.prototype = Object.getPrototypeOf(this);
+            copy = new core({ x: 0, y: 0 });
             Bread.extend(copy, this);
             return copy;
         }
@@ -526,7 +514,8 @@ var error, bodyProto;
     Body.prototype = Object.preventExtensions(bodyProto);
     Bread.Body = Body;
 
-})(window, window.Bread);/* Module file: src/point.js */
+})(window, window.Bread)
+;/* Module file: src/point.js */
 (function(w, Bread) {
 
 var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
@@ -637,7 +626,7 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
         },
         directionLine: function() {
             var slope, b, xp, point;
-            slope = Math.tan(this.ygoes * this.angle);
+            slope = Math.tan(this.angle);
             b = this.y - this.x * slope;
             xp = this.x + this.xgoes * 10;
             point = Bread.point({
@@ -650,8 +639,7 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
                 points: [point]
             })
         },
-        reach: function(point, lines) {
-
+        reach: function(point, lines, space) {
             try {
                 var linesPth, closeLine, stop, points, target;
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
@@ -659,9 +647,8 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
                 target = (reachPnt) ? reachPnt : point
                 this.pointTo(target);
                 linesPth = linesInPath.call(this, lines, target);
-
                 if (linesPth.length) {
-                    closeLine = getCloseLine.call(this, linesPth);
+                    closeLine = getCloseLine.call(this, linesPth, space);
                     points = closeLine.allPoints;
                     reachPnt = getClosePoint.call(this, points);
                 } else {
@@ -723,7 +710,7 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
         return linesPth;
     }
 
-    function getCloseLine(lines) {
+    function getCloseLine(lines, space) {
         var localPnt, minD, distances, lineCl;
         localPnt = this;
         distances = Bread.map(lines, function(line) {
@@ -731,31 +718,36 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
         });
         minD = Math.min.apply(null, distances);
         lineCl = lines[distances.indexOf(minD)].line.clone();
-        return extrapolateLine(lineCl);
+        return extrapolateLine(lineCl, space);
     }
 
-    function extrapolateLine(line) {
-        var points, slopes, x, y;
-        points = line.allPoints;
-        slopes = line.slopes;
-        if (points[0].x > points[1].x) {
-            x = line.x + 4;
-            points[0].x = points[0].x - 4;
-        } else {
-            x = line.x - 4;
-            points[0].x = points[0].x + 4;
-        }
-        if (points[0].y > points[1].y) {
-            y = line.y + 4 * slopes[0];
-            points[0].y = points[0].y - 4 * slopes[0];
-        } else {
-            points[0].y = points[0].y + 4 * slopes[0];
-            y = line.y - 4 * slopes[0];
-        }
+    function extrapolateLine(line, space) {
+        var extrapolated, x, y;
+        extrapolated = extrapolateAxis.call(line,'x',space);
+        x = extrapolated.axis;
+        extrapolated = extrapolateAxis.call(line,'y',space);
+        y = extrapolated.axis;
         line.xdef = x;
         line.ydef = y;
-        line.points = points;
+        line.points = extrapolated.points;
         return line;
+    }
+
+    function extrapolateAxis(axis, space) {
+        var points, slopes, a;
+        points = this.allPoints;
+        slopes = this.slopes;
+        if (points[0][axis] > points[1][axis]) {
+            a = this[axis] + space;
+            points[0][axis] = points[0][axis] - space;
+        } else {
+            a = this[axis] - space;
+            points[0][axis] = points[0][axis] + space;
+        }
+        return {
+            axis: a,
+            points: points
+        };
     }
 
     function getClosePoint(points) {
@@ -772,8 +764,7 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     Bread.point = point;
     Bread.Point = PointMix;
 
-})(window, window.Bread)
-;/* Module file: src/line.js */
+})(window, window.Bread);/* Module file: src/line.js */
 (function(w, Bread) {
 
 var error, Body, Point, LineMix, Pi, fPoint;
@@ -1293,8 +1284,6 @@ var error = Bread.error();
 
     function groups() {
 
-
-
         return {
             points: function(attrs, len) {
                 var body, att;
@@ -1477,4 +1466,50 @@ var error = Bread.error();
 
     Bread.random = Random;
 
+})(window, window.Bread)
+;/* Module file: src/text.js */
+(function(w, Bread) {
+
+var error = Bread.error();
+    error.filename = 'groups.js';
+
+    if (!w.Bread) {
+        error.include('You must include Bread');
+        error.show();
+        return false;
+    }
+function text (attrs) {
+	return new Text(attrs);
+}
+    function Text(attrs) {
+        try {
+            if (!attrs.text) throw throw error.declare('string text is not defined');
+            this.text = attrs.text;
+            this.x = attrs.x || 0;
+            this.y = attrs.y || 0;
+            this.fill = this.fill || false;
+            this.textBaseline = this.textBaseline || '';
+            this.font = attrs.font || "3px serif";
+            this.maxWidth = attrs.maxWidth || 0;
+        } catch (e) {
+            error.show(e);
+        }
+    }
+
+    Text.prototype = {
+        render: function() {
+            Bread.Body.validateContext.call(this);
+            this.context.font = this.font;
+            if (this.textBaseline) this.context.textBaseline = this.textBaseline;
+            if (this.fill) {
+                this.context.fillText(this.text, this.x, this.y);
+            } else {
+                this.context.strokeText(this.text, this.x, this.y);
+            }
+        }
+    }
+
+    Bread.Text = Text;
+    Bread.text = text;
+    
 })(window, window.Bread)
