@@ -37,11 +37,11 @@ If you want to extend or add new features to the library, please follow this ste
 
 ## Getting started
 
-First of all fork or clone this repo, you will find the source code in the app/src folder, **Please include all files
-since in this moment the project is in development stage**.
-Once you have the source code, copy the src folder and place it inside a js/bread folder in your project files 
-(this is according to your folder structure), then include all src files (Remember dependencies) and inside 
-any html file create a canvas element.
+
+Run ```npm install breadjs``` or download this repo, the library is in the dist folder, so include dist/bread.js in your project.
+
+Once you are done with the installation you must create a canvas element, this element will be associated to the universe object, 
+this object will be explained further in this document.
 ```
 <canvas id="canvas_el"></canvas>
 ```
