@@ -17,7 +17,7 @@
 
     function Text(attrs) {
         try {
-            if (!attrs.text) throw throw error.declare('string text is not defined');
+            if (!attrs.text) throw error.declare('string text is not defined');
             this.text = attrs.text;
             this.x = attrs.x || 0;
             this.y = attrs.y || 0;
