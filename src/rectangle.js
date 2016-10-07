@@ -1,7 +1,7 @@
 (function(w, Bread) {
 
     'use strict';
-    
+
     var error, Body, Line, RectangleMix;
     error = Bread.error();
     Body = Bread.Body;
@@ -31,18 +31,21 @@
                 y: attrs.y,
                 angle: attrs.angle || 0
             });
-            if (!instance.x || !instance.y) throw error.type('error in position');
-            instance.defWidth = attrs.width;
-            instance.defHeight = attrs.height;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
-    Rectangle.prototype = {
+    function init(attrs) {
+        if (!this.x || !this.y) return false;
+        this.defWidth = attrs.width;
+        this.defHeight = attrs.height;
+        return true;
+    }
 
+    Rectangle.prototype = {
         render: function() {
 
             this.validateContext();

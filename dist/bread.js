@@ -1,6 +1,6 @@
 'use strict';
 /*
-Name: breadjs@0.0.3
+Name: breadjs@0.0.32
 Author: Juan Gutierrez. Email: juanc1gutierrez@gmail.com
 Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
 Repo: https://github.com/JuanCam/Bread.
@@ -518,7 +518,7 @@ var error, bodyProto;
 ;/* Module file: src/point.js */
 (function(w, Bread) {
 
-var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
+var error, Body, PointMix, queuedir;
     error = Bread.error();
     Body = Bread.Body;
 
@@ -644,16 +644,16 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
                 var linesPth, closeLine, stop, points, target;
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
-                target = (reachPnt) ? reachPnt : point
+                target = (this.reachPnt) ? this.reachPnt : point
                 this.pointTo(target);
                 linesPth = linesInPath.call(this, lines, target);
                 if (linesPth.length) {
                     closeLine = getCloseLine.call(this, linesPth, space);
                     points = closeLine.allPoints;
-                    reachPnt = getClosePoint.call(this, points);
+                    this.reachPnt = getClosePoint.call(this, points);
                 } else {
-                    if (this.distance(reachPnt) <= this.speed) {
-                        reachPnt = point;
+                    if (this.distance(this.reachPnt) <= this.speed) {
+                        this.reachPnt = point;
                         stop = true;
                     }
                 }
@@ -681,6 +681,10 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
     Object.defineProperty(Point.prototype, 'point', {
         'enumerable': true,
         'value': true
+    });
+    Object.defineProperty(Point.prototype, 'reachPnt', {
+        'enumerable': false,
+        'value': undefined
     });
 
     function _compare(a, b) {
@@ -723,9 +727,9 @@ var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
 
     function extrapolateLine(line, space) {
         var extrapolated, x, y;
-        extrapolated = extrapolateAxis.call(line,'x',space);
+        extrapolated = extrapolateAxis.call(line, 'x', space);
         x = extrapolated.axis;
-        extrapolated = extrapolateAxis.call(line,'y',space);
+        extrapolated = extrapolateAxis.call(line, 'y', space);
         y = extrapolated.axis;
         line.xdef = x;
         line.ydef = y;
@@ -792,29 +796,31 @@ var error, Body, Point, LineMix, Pi, fPoint;
 
     function line(attrs) {
         try {
-            var instance;
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
             /*Create an object for the first point*/
-            fPoint = Bread.point({ x: attrs.x, y: attrs.y });
-            instance = new LineMix({
+            var instance = new LineMix({
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.type('error in position');
-            instance.firstPoint = fPoint;
-            instance.points = attrs.points;
-            instance.fill = attrs.fill;
-            instance.close = attrs.close;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
-    Line.prototype = {
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
+        this.firstPoint = fPoint;
+        this.points = attrs.points;
+        this.fill = attrs.fill;
+        this.close = attrs.close;
+        return this;
+    }
 
+    Line.prototype = {
         collision: function(line) {
             try {
                 var p, sortX, sortY, d, dirLine, cutPnt, flag;
@@ -1014,21 +1020,22 @@ var error, Body, Point, ArcMix;
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            instance.defRaduis = attrs.radius;
-            instance.fill = attrs.fill;
-            instance.startAngle = attrs.startAngle;
-            instance.endAngle = attrs.endAngle;
-            instance.anticlock = instance.anticlock || false;
-
-            return instance;
+            return init.call(instance, attrs);
         } catch (e) {
             error.show(e);
         }
     }
 
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        this.defRaduis = attrs.radius;
+        this.fill = attrs.fill;
+        this.startAngle = attrs.startAngle;
+        this.endAngle = attrs.endAngle;
+        this.anticlock = this.anticlock || false;
+        return this;
+    }
     Arc.prototype = {
-
         render: function() {
             this.validateContext();
             this.context.beginPath();
@@ -1100,21 +1107,25 @@ var error, Body, Arc, CircleMix, Pi;
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            instance.defRaduis = attrs.radius;
-            instance.fill = attrs.fill;
-            instance.startAngle = 0;
-            instance.endAngle = 2 * Pi;
-            instance.anticlock = true;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        this.defRaduis = attrs.radius;
+        this.fill = attrs.fill;
+        this.anticlock = true;
+        return this;
+    }
+
     Circle.prototype = {
 
+        startAngle: 0,
+        endAngle: 2 * Pi,
         collision: function(circle) {
             try {
                 var radius, radiusV, hypotenuse;
@@ -1174,18 +1185,21 @@ var error, Body, Line, RectangleMix;
                 y: attrs.y,
                 angle: attrs.angle || 0
             });
-            if (!instance.x || !instance.y) throw error.type('error in position');
-            instance.defWidth = attrs.width;
-            instance.defHeight = attrs.height;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
-    Rectangle.prototype = {
+    function init(attrs) {
+        if (!this.x || !this.y) return false;
+        this.defWidth = attrs.width;
+        this.defHeight = attrs.height;
+        return true;
+    }
 
+    Rectangle.prototype = {
         render: function() {
 
             this.validateContext();
@@ -1359,6 +1373,38 @@ var error = Bread.error();
                     grp.push(obj);
                 });
             }
+        },
+        accelerate: function(acc) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(acc, function(a) {
+                bodies[b].accelerate(a.x, a.y);
+                b++;
+            });
+        },
+        bounce: function(bn) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(bn, function(a) {
+                bodies[b].bounce(a.x, a.y);
+                b++;
+            });
+        },
+        impulse: function(speed, friction, angle) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(bn, function(a) {
+                bodies[b].impulse(a.speed, a.friction, a.angle);
+                b++;
+            });
+        },
+        move: function() {
+            Bread.forEach(this, function(b) {
+                b.move();
+            });
         }
     }
 
@@ -1472,7 +1518,7 @@ var error = Bread.error();
 (function(w, Bread) {
 
 var error = Bread.error();
-    error.filename = 'groups.js';
+    error.filename = 'text.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');

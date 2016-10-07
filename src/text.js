@@ -3,7 +3,7 @@
     'use strict';
 
     var error = Bread.error();
-    error.filename = 'groups.js';
+    error.filename = 'text.js';
 
     if (!w.Bread) {
         error.include('You must include Bread');

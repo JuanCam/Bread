@@ -117,6 +117,38 @@
                     grp.push(obj);
                 });
             }
+        },
+        accelerate: function(acc) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(acc, function(a) {
+                bodies[b].accelerate(a.x, a.y);
+                b++;
+            });
+        },
+        bounce: function(bn) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(bn, function(a) {
+                bodies[b].bounce(a.x, a.y);
+                b++;
+            });
+        },
+        impulse: function(speed, friction, angle) {
+            var b, bodies;
+            bodies = this;
+            b = 0;
+            Bread.forEach(bn, function(a) {
+                bodies[b].impulse(a.speed, a.friction, a.angle);
+                b++;
+            });
+        },
+        move: function() {
+            Bread.forEach(this, function(b) {
+                b.move();
+            });
         }
     }
 

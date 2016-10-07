@@ -31,21 +31,22 @@
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            instance.defRaduis = attrs.radius;
-            instance.fill = attrs.fill;
-            instance.startAngle = attrs.startAngle;
-            instance.endAngle = attrs.endAngle;
-            instance.anticlock = instance.anticlock || false;
-
-            return instance;
+            return init.call(instance, attrs);
         } catch (e) {
             error.show(e);
         }
     }
 
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        this.defRaduis = attrs.radius;
+        this.fill = attrs.fill;
+        this.startAngle = attrs.startAngle;
+        this.endAngle = attrs.endAngle;
+        this.anticlock = this.anticlock || false;
+        return this;
+    }
     Arc.prototype = {
-
         render: function() {
             this.validateContext();
             this.context.beginPath();

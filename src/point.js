@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var error, Body, PointMix, xgoes, ygoes, reachPnt, shifted, queuedir;
+    var error, Body, PointMix, queuedir;
     error = Bread.error();
     Body = Bread.Body;
 
@@ -128,16 +128,16 @@
                 var linesPth, closeLine, stop, points, target;
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
-                target = (reachPnt) ? reachPnt : point
+                target = (this.reachPnt) ? this.reachPnt : point
                 this.pointTo(target);
                 linesPth = linesInPath.call(this, lines, target);
                 if (linesPth.length) {
                     closeLine = getCloseLine.call(this, linesPth, space);
                     points = closeLine.allPoints;
-                    reachPnt = getClosePoint.call(this, points);
+                    this.reachPnt = getClosePoint.call(this, points);
                 } else {
-                    if (this.distance(reachPnt) <= this.speed) {
-                        reachPnt = point;
+                    if (this.distance(this.reachPnt) <= this.speed) {
+                        this.reachPnt = point;
                         stop = true;
                     }
                 }
@@ -165,6 +165,10 @@
     Object.defineProperty(Point.prototype, 'point', {
         'enumerable': true,
         'value': true
+    });
+    Object.defineProperty(Point.prototype, 'reachPnt', {
+        'enumerable': false,
+        'value': undefined
     });
 
     function _compare(a, b) {
@@ -207,9 +211,9 @@
 
     function extrapolateLine(line, space) {
         var extrapolated, x, y;
-        extrapolated = extrapolateAxis.call(line,'x',space);
+        extrapolated = extrapolateAxis.call(line, 'x', space);
         x = extrapolated.axis;
-        extrapolated = extrapolateAxis.call(line,'y',space);
+        extrapolated = extrapolateAxis.call(line, 'y', space);
         y = extrapolated.axis;
         line.xdef = x;
         line.ydef = y;

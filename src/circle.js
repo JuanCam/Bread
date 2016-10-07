@@ -1,7 +1,7 @@
 (function(w, Bread) {
 
     'use strict';
-    
+
     var error, Body, Arc, CircleMix, Pi;
     error = Bread.error();
     Body = Bread.Body;
@@ -31,21 +31,25 @@
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            instance.defRaduis = attrs.radius;
-            instance.fill = attrs.fill;
-            instance.startAngle = 0;
-            instance.endAngle = 2 * Pi;
-            instance.anticlock = true;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        this.defRaduis = attrs.radius;
+        this.fill = attrs.fill;
+        this.anticlock = true;
+        return this;
+    }
+
     Circle.prototype = {
 
+        startAngle: 0,
+        endAngle: 2 * Pi,
         collision: function(circle) {
             try {
                 var radius, radiusV, hypotenuse;

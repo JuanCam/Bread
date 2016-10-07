@@ -26,29 +26,31 @@
 
     function line(attrs) {
         try {
-            var instance;
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
             /*Create an object for the first point*/
-            fPoint = Bread.point({ x: attrs.x, y: attrs.y });
-            instance = new LineMix({
+            var instance = new LineMix({
                 x: attrs.x,
                 y: attrs.y
             });
-            if (!instance.x || !instance.y) throw error.type('error in position');
-            instance.firstPoint = fPoint;
-            instance.points = attrs.points;
-            instance.fill = attrs.fill;
-            instance.close = attrs.close;
-            return instance;
+            return init.call(instance, attrs);
 
         } catch (e) {
             error.show(e);
         }
     }
 
-    Line.prototype = {
+    function init(attrs) {
+        if (!this.x || !this.y) return;
+        var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
+        this.firstPoint = fPoint;
+        this.points = attrs.points;
+        this.fill = attrs.fill;
+        this.close = attrs.close;
+        return this;
+    }
 
+    Line.prototype = {
         collision: function(line) {
             try {
                 var p, sortX, sortY, d, dirLine, cutPnt, flag;
