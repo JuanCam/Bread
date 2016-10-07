@@ -25,20 +25,6 @@ module.exports = function(grunt) {
     };
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        connect: {
-            server: {
-                options: {
-                    port: 8001,
-                    base: {
-                        path: 'app',
-                        options: {
-                            index: 'index.html'
-                        }
-                    },
-                    livereload: true
-                }
-            }
-        },
         concat: {
             options: {
                 separator: ';',
@@ -51,16 +37,12 @@ module.exports = function(grunt) {
             dist: {
                 src: config.sources,
                 dest: 'dist/<%= pkg.name %>.js',
-            },
-            app: {
-                src: config.sources,
-                dest: 'app/js/<%= pkg.name %>.js',
             }
         },
         watch: {
             concatSrc: {
                 files: 'src/**.js',
-                tasks: ['concat:dist', 'concat:app']
+                tasks: ['concat:dist']
             }
         }
     });
@@ -75,6 +57,6 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', ['concat:dist']);
-    grunt.registerTask('lift', ['concat:app', 'connect:server', 'watch']);
+    grunt.registerTask('build', ['watch']);
     grunt.registerTask('concatSrc', ['watch:concatSrc']);
 }
