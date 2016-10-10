@@ -1,6 +1,6 @@
 'use strict';
 /*
-Name: breadjs@0.0.32
+Name: breadjs@0.0.33
 Author: Juan Gutierrez. Email: juanc1gutierrez@gmail.com
 Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
 Repo: https://github.com/JuanCam/Bread.
@@ -23,11 +23,6 @@ var Bread = {
     Universe.prototype = {
         bodies:[],
         addIt: function(body) {
-
-            if (!(body instanceof Bread.Body)) {
-                console.error('Incorrect input argument in add-it!');
-                return false;
-            }
 
             for (var bd in this.bodies) {
                 if (this.bodies[bd] == body) {
@@ -54,10 +49,6 @@ var Bread = {
         },
         removeIt: function(body) {
 
-            if (!(body instanceof Bread.Body)) {
-                console.error('Incorrect input argument in remove-it!');
-                return false;
-            }
             for (var bdy in this.bodies) {
                 if (this.bodies[bdy] == body)
                     this.bodies.splice(1, bdy);
@@ -401,17 +392,19 @@ var error = Bread.error();
     }
 
     function augment(Base, mixins) {
-
+        var lastInd;
         if (!Bread.isArray(mixins)) {
             error.show(error.type('mixins must be an Array'));
             return false;
         }
+        lastInd = mixins.length - 1;
 
         function CoreBase() {
             Base.apply(this, arguments);
+            mixins[lastInd].apply(this, arguments);
         }
 
-        CoreBase.prototype = Object.create(Base.prototype);//Chain
+        CoreBase.prototype = Object.create(Base.prototype); //Chain
         CoreBase.constructor = Base;
 
         Bread.forEach(mixins, function(mixin, index) {
@@ -423,8 +416,7 @@ var error = Bread.error();
 
     Bread.augment = augment;
 
-})(window, window.Bread)
-;/* Module file: src/body.js */
+})(window, window.Bread);/* Module file: src/body.js */
 (function(w, Bread) {
 
 var error, bodyProto;
@@ -448,6 +440,11 @@ var error, bodyProto;
             this.speed = 0;
             this.angle = 0;
             this.friction = 0;
+            this.xgoes = 1;
+            this.ygoes = 1;
+            this.reachPnt = undefined;
+            this.queuedir = [];
+
         } catch (e) {
             error.show(e);
         }
@@ -460,6 +457,7 @@ var error, bodyProto;
                 if (!Bread.isNumber(accy)) throw error.type('y acceleration must be a number');
                 this.x += this.xspeed, this.xspeed += accx;
                 this.y += this.yspeed, this.yspeed += accy;
+                this.angle = Math.atan(this.xspeed / this.yspeed);
             } catch (e) {
                 error.show(e);
             }
@@ -491,8 +489,10 @@ var error, bodyProto;
             }
         },
         move: function() {
-            this.x += this.speed * Math.cos(this.angle);
-            this.y += this.speed * Math.sin(this.angle);
+            this.xspeed = this.speed * Math.cos(this.angle);
+            this.yspeed = this.speed * Math.sin(this.angle);
+            this.x += this.xspeed;
+            this.y += this.yspeed;
             this.speed -= this.friction;
         },
         validateContext: function() {
@@ -518,7 +518,7 @@ var error, bodyProto;
 ;/* Module file: src/point.js */
 (function(w, Bread) {
 
-var error, Body, PointMix, queuedir;
+var error, Body, PointMix;
     error = Bread.error();
     Body = Bread.Body;
 
@@ -529,49 +529,35 @@ var error, Body, PointMix, queuedir;
         return false;
     }
 
-    /*Private properties*/
-    queuedir = [];
-
     function Point(attrs) {
         /*Point base mixin*/
         try {
 
             if (!Bread.isNumber(attrs.x)) throw error.type('x must be a number');
             if (!Bread.isNumber(attrs.y)) throw error.type('y must be a number');
-            this.x = attrs.x;
-            this.y = attrs.y;
-
+            this.angle = attrs.angle || 0;
         } catch (e) {
             error.show(e);
         }
     }
 
     function point(attrs) {
-        try {
-            var instance = new PointMix({
-                x: attrs.x,
-                y: attrs.y,
-                angle: attrs.angle || 0
-            });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            return instance;
 
-        } catch (e) {
-            error.show(e);
-        }
+        return new PointMix({
+            x: attrs.x,
+            y: attrs.y,
+            angle: attrs.angle
+        });
     }
 
 
     Point.prototype = {
-        xgoes: 1,
-        ygoes: 1,
         distance: function(point) {
             var d;
             try {
                 if (!Bread.isBody(point)) throw error.type('point must be a body');
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
-
                 d = Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
 
             } catch (e) {
@@ -610,19 +596,20 @@ var error, Body, PointMix, queuedir;
             }
         },
         direction: function() {
-            var dirx, diry;
-            dirx = 0;
-            diry = 0;
-            if (queuedir.length <= 0) {
-                queuedir.push(this.x)
-                queuedir.push(this.y)
+            var dx, dy;
+            dx = 0;
+            dy = 0;
+            if (this.queuedir.length <= 0) {
+                this.queuedir.push(this.x)
+                this.queuedir.push(this.y)
             } else {
-                dirx = ((this.x - queuedir[0]) / Math.abs(this.x - queuedir[0])) || 0;
-                diry = ((this.y - queuedir[1]) / Math.abs(this.y - queuedir[1])) || 0;
-                queuedir.pop(), queuedir.pop();
-                queuedir.push(this.x), queuedir.push(this.y);
+                dx = (this.x - this.queuedir[0] != 0) ? this.x - this.queuedir[0] : 1;
+                dy = (this.y - this.queuedir[1] != 0) ? this.y - this.queuedir[1] : 1;
+                toward.call(this, dx, dy);
+                this.queuedir.pop(), this.queuedir.pop();
+                this.queuedir.push(this.x), this.queuedir.push(this.y);
             }
-            return [dirx, diry];
+            return [this.xgoes, this.ygoes];
         },
         directionLine: function() {
             var slope, b, xp, point;
@@ -676,15 +663,6 @@ var error, Body, PointMix, queuedir;
                 error.show(e);
             }
         }
-    });
-
-    Object.defineProperty(Point.prototype, 'point', {
-        'enumerable': true,
-        'value': true
-    });
-    Object.defineProperty(Point.prototype, 'reachPnt', {
-        'enumerable': false,
-        'value': undefined
     });
 
     function _compare(a, b) {
@@ -790,28 +768,32 @@ var error, Body, Point, LineMix, Pi, fPoint;
     }
 
 
-    function Line() {
+    function Line(attrs) {
         /*Line base mixin*/
-    }
-
-    function line(attrs) {
         try {
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
-            /*Create an object for the first point*/
-            var instance = new LineMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function line(attrs) {
+        
+        return new LineMix({
+            x: attrs.x,
+            y: attrs.y,
+            points: attrs.points,
+            fill: attrs.fill,
+            close: attrs.close
+        });
+    }
+
     function init(attrs) {
         if (!this.x || !this.y) return;
+        /*Create an object for the first point*/
         var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
         this.firstPoint = fPoint;
         this.points = attrs.points;
@@ -948,11 +930,6 @@ var error, Body, Point, LineMix, Pi, fPoint;
         }
     });
 
-    Object.defineProperty(Line.prototype, 'line', {
-        'enumerable': true,
-        'value': true
-    });
-
     Object.defineProperty(Line.prototype, 'xdef', {
         set: function(x) {
             this.x = x;
@@ -983,7 +960,7 @@ var error, Body, Point, LineMix, Pi, fPoint;
         return points[n].y - points[n].x * slopes[s];
     }
 
-    LineMix = Bread.augment(Body, [Line, Point]);
+    LineMix = Bread.augment(Body, [Point, Line]);
     Bread.line = line;
     Bread.Line = LineMix;
 
@@ -1006,24 +983,27 @@ var error, Body, Point, ArcMix;
         return false;
     }
 
-    function Arc() {
+    function Arc(attrs) {
         /*Arc base mixin*/
-    }
-
-    function arc(attrs) {
-
         try {
             if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
             if (!Bread.isNumber(attrs.startAngle)) throw error.type('startAngle must be a number');
             if (!Bread.isNumber(attrs.endAngle)) throw error.type('endAngle must be a number');
-            var instance = new ArcMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
         } catch (e) {
             error.show(e);
         }
+    }
+
+    function arc(attrs) {
+
+        return new ArcMix({
+            x: attrs.x,
+            y: attrs.y,
+            radius: attrs.radius,
+            startAngle: attrs.startAngle,
+            endAngle: attrs.endAngle
+        });
     }
 
     function init(attrs) {
@@ -1040,6 +1020,7 @@ var error, Body, Point, ArcMix;
             this.validateContext();
             this.context.beginPath();
             this.context.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.anticlock);
+            this.context.closePath();
             fillArc.call(this);
         }
     }
@@ -1055,22 +1036,18 @@ var error, Body, Point, ArcMix;
         }
     });
 
-
-    Object.defineProperty(Arc.prototype, 'arc', {
-        'enumerable': true,
-        'value': true
-    });
-
     function fillArc() {
 
         if (this.fill) {
+            this.context.fillStyle = this.fill;
             this.context.fill();
-        } else {
-            this.context.stroke();
         }
+        this.context.strokeStyle = this.stroke || '#000';
+        this.context.stroke();
+
     }
 
-    ArcMix = Bread.augment(Body, [Arc, Point]);
+    ArcMix = Bread.augment(Body, [Point, Arc]);
     Bread.arc = arc;
     Bread.Arc = ArcMix;
 
@@ -1095,23 +1072,23 @@ var error, Body, Arc, CircleMix, Pi;
         return false;
     }
 
-    function Circle() {
+    function Circle(attrs) {
         /*Circle base mixin*/
-    }
-
-    function circle(attrs) {
         try {
             if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
-
-            var instance = new CircleMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
-
+            if (!init.call(this, attrs)) throw error.type('error in position');
         } catch (e) {
             error.show(e);
         }
+    }
+
+    function circle(attrs) {
+        return new CircleMix({
+            x: attrs.x,
+            y: attrs.y,
+            radius: attrs.radius
+        });
+
     }
 
     function init(attrs) {
@@ -1124,8 +1101,6 @@ var error, Body, Arc, CircleMix, Pi;
 
     Circle.prototype = {
 
-        startAngle: 0,
-        endAngle: 2 * Pi,
         collision: function(circle) {
             try {
                 var radius, radiusV, hypotenuse;
@@ -1143,12 +1118,16 @@ var error, Body, Arc, CircleMix, Pi;
         }
     }
 
-    Object.defineProperty(Circle.prototype, 'circle', {
+    Object.defineProperty(Circle.prototype, 'startAngle', {
         'enumerable': true,
-        'value': true
+        'value': 0
+    });
+    Object.defineProperty(Circle.prototype, 'endAngle', {
+        'enumerable': true,
+        'value': 2 * Pi
     });
 
-    CircleMix = Bread.augment(Body, [Circle, Arc]);;
+    CircleMix = Bread.augment(Body, [Arc, Circle]);
     Bread.circle = circle;
     Bread.Circle = CircleMix;
 
@@ -1172,44 +1151,40 @@ var error, Body, Line, RectangleMix;
         return false;
     }
 
-    function Rectangle() {
+    function Rectangle(attrs) {
         /*Rectangle base mixin*/
-    }
-
-    function rectangle(attrs) {
         try {
             if (!Bread.isNumber(attrs.width)) throw error.type('width must be a number');
             if (!Bread.isNumber(attrs.height)) throw error.type('height must be a number');
-            var instance = new RectangleMix({
-                x: attrs.x,
-                y: attrs.y,
-                angle: attrs.angle || 0
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function rectangle(attrs) {
+        return new RectangleMix({
+            x: attrs.x,
+            y: attrs.y,
+            angle: attrs.angle || 0
+        });
+    }
+
     function init(attrs) {
-        if (!this.x || !this.y) return false;
+        if (!this.x || !this.y) return ;
         this.defWidth = attrs.width;
         this.defHeight = attrs.height;
-        return true;
+        return this;
     }
 
     Rectangle.prototype = {
         render: function() {
-
             this.validateContext();
-            this.context.save();
             this.context.beginPath();
-            this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
-            this.context.rotate(this.angle);
-            this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
-            this.context.restore();
-            fillRect.call(this);
+            this.context.lineWidth = this.lineWidth || 1;
+            rectRotation.call(this);
+            drawRect.call(this);
         }
     }
 
@@ -1236,21 +1211,24 @@ var error, Body, Line, RectangleMix;
         }
     });
 
-    Object.defineProperty(Rectangle.prototype, 'rectangle', {
-        'enumerable': true,
-        'value': true
-    });
-
-    function fillRect() {
-
-        if (this.fill) {
-            this.context.fill();
-        } else {
+    function drawRect() {
+        if (this.stroke) {
+            this.context.strokeStyle = this.stroke || '#000';
+            this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
             this.context.stroke();
+        } else if (this.fill) {
+            this.context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         }
+        this.context.restore();
     }
 
-    RectangleMix = Bread.augment(Body, [Rectangle, Line]);
+    function rectRotation() {
+        this.context.save();
+        this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
+        this.context.rotate(this.angle);
+    }
+
+    RectangleMix = Bread.augment(Body, [Line, Rectangle]);
     Bread.rectangle = rectangle;
     Bread.Rectangle = RectangleMix;
 
@@ -1408,6 +1386,7 @@ var error = Bread.error();
         }
     }
 
+    Bread.Group = Bread.augment(Array, [Group]);
     Bread.group = function(attrs) {
         return group(attrs, undefined, attrs.length);
     };
@@ -1536,8 +1515,8 @@ var error = Bread.error();
             this.text = attrs.text;
             this.x = attrs.x || 0;
             this.y = attrs.y || 0;
-            this.fill = this.fill || false;
-            this.textBaseline = this.textBaseline || '';
+            this.fill = attrs.fill || false;
+            this.textBaseline = attrs.textBaseline || '';
             this.font = attrs.font || "3px serif";
             this.maxWidth = attrs.maxWidth || 0;
         } catch (e) {
@@ -1547,14 +1526,17 @@ var error = Bread.error();
 
     Text.prototype = {
         render: function() {
-            Bread.Body.validateContext.call(this);
+            Bread.Body.prototype.validateContext.call(this);
             this.context.font = this.font;
+            this.context.beginPath();
             if (this.textBaseline) this.context.textBaseline = this.textBaseline;
             if (this.fill) {
+                this.context.fillStyle = this.fill;
                 this.context.fillText(this.text, this.x, this.y);
             } else {
                 this.context.strokeText(this.text, this.x, this.y);
             }
+            this.context.closePath();
         }
     }
 

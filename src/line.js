@@ -20,28 +20,32 @@
     }
 
 
-    function Line() {
+    function Line(attrs) {
         /*Line base mixin*/
-    }
-
-    function line(attrs) {
         try {
             if (!attrs.points) throw error.type('points must be defined');
             if (attrs.points.length <= 0) throw error.type('points list must have at least one element');
-            /*Create an object for the first point*/
-            var instance = new LineMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function line(attrs) {
+        
+        return new LineMix({
+            x: attrs.x,
+            y: attrs.y,
+            points: attrs.points,
+            fill: attrs.fill,
+            close: attrs.close
+        });
+    }
+
     function init(attrs) {
         if (!this.x || !this.y) return;
+        /*Create an object for the first point*/
         var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
         this.firstPoint = fPoint;
         this.points = attrs.points;
@@ -178,11 +182,6 @@
         }
     });
 
-    Object.defineProperty(Line.prototype, 'line', {
-        'enumerable': true,
-        'value': true
-    });
-
     Object.defineProperty(Line.prototype, 'xdef', {
         set: function(x) {
             this.x = x;
@@ -213,7 +212,7 @@
         return points[n].y - points[n].x * slopes[s];
     }
 
-    LineMix = Bread.augment(Body, [Line, Point]);
+    LineMix = Bread.augment(Body, [Point, Line]);
     Bread.line = line;
     Bread.Line = LineMix;
 

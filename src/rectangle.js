@@ -18,44 +18,40 @@
         return false;
     }
 
-    function Rectangle() {
+    function Rectangle(attrs) {
         /*Rectangle base mixin*/
-    }
-
-    function rectangle(attrs) {
         try {
             if (!Bread.isNumber(attrs.width)) throw error.type('width must be a number');
             if (!Bread.isNumber(attrs.height)) throw error.type('height must be a number');
-            var instance = new RectangleMix({
-                x: attrs.x,
-                y: attrs.y,
-                angle: attrs.angle || 0
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
 
         } catch (e) {
             error.show(e);
         }
     }
 
+    function rectangle(attrs) {
+        return new RectangleMix({
+            x: attrs.x,
+            y: attrs.y,
+            angle: attrs.angle || 0
+        });
+    }
+
     function init(attrs) {
-        if (!this.x || !this.y) return false;
+        if (!this.x || !this.y) return ;
         this.defWidth = attrs.width;
         this.defHeight = attrs.height;
-        return true;
+        return this;
     }
 
     Rectangle.prototype = {
         render: function() {
-
             this.validateContext();
-            this.context.save();
             this.context.beginPath();
-            this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
-            this.context.rotate(this.angle);
-            this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
-            this.context.restore();
-            fillRect.call(this);
+            this.context.lineWidth = this.lineWidth || 1;
+            rectRotation.call(this);
+            drawRect.call(this);
         }
     }
 
@@ -82,21 +78,24 @@
         }
     });
 
-    Object.defineProperty(Rectangle.prototype, 'rectangle', {
-        'enumerable': true,
-        'value': true
-    });
-
-    function fillRect() {
-
-        if (this.fill) {
-            this.context.fill();
-        } else {
+    function drawRect() {
+        if (this.stroke) {
+            this.context.strokeStyle = this.stroke || '#000';
+            this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
             this.context.stroke();
+        } else if (this.fill) {
+            this.context.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         }
+        this.context.restore();
     }
 
-    RectangleMix = Bread.augment(Body, [Rectangle, Line]);
+    function rectRotation() {
+        this.context.save();
+        this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
+        this.context.rotate(this.angle);
+    }
+
+    RectangleMix = Bread.augment(Body, [Line, Rectangle]);
     Bread.rectangle = rectangle;
     Bread.Rectangle = RectangleMix;
 

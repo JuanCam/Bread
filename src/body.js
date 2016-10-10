@@ -23,6 +23,11 @@
             this.speed = 0;
             this.angle = 0;
             this.friction = 0;
+            this.xgoes = 1;
+            this.ygoes = 1;
+            this.reachPnt = undefined;
+            this.queuedir = [];
+
         } catch (e) {
             error.show(e);
         }
@@ -35,6 +40,7 @@
                 if (!Bread.isNumber(accy)) throw error.type('y acceleration must be a number');
                 this.x += this.xspeed, this.xspeed += accx;
                 this.y += this.yspeed, this.yspeed += accy;
+                this.angle = Math.atan(this.xspeed / this.yspeed);
             } catch (e) {
                 error.show(e);
             }
@@ -66,8 +72,10 @@
             }
         },
         move: function() {
-            this.x += this.speed * Math.cos(this.angle);
-            this.y += this.speed * Math.sin(this.angle);
+            this.xspeed = this.speed * Math.cos(this.angle);
+            this.yspeed = this.speed * Math.sin(this.angle);
+            this.x += this.xspeed;
+            this.y += this.yspeed;
             this.speed -= this.friction;
         },
         validateContext: function() {

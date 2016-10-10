@@ -19,23 +19,23 @@
         return false;
     }
 
-    function Circle() {
+    function Circle(attrs) {
         /*Circle base mixin*/
-    }
-
-    function circle(attrs) {
         try {
             if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
-
-            var instance = new CircleMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
-
+            if (!init.call(this, attrs)) throw error.type('error in position');
         } catch (e) {
             error.show(e);
         }
+    }
+
+    function circle(attrs) {
+        return new CircleMix({
+            x: attrs.x,
+            y: attrs.y,
+            radius: attrs.radius
+        });
+
     }
 
     function init(attrs) {
@@ -48,8 +48,6 @@
 
     Circle.prototype = {
 
-        startAngle: 0,
-        endAngle: 2 * Pi,
         collision: function(circle) {
             try {
                 var radius, radiusV, hypotenuse;
@@ -67,12 +65,16 @@
         }
     }
 
-    Object.defineProperty(Circle.prototype, 'circle', {
+    Object.defineProperty(Circle.prototype, 'startAngle', {
         'enumerable': true,
-        'value': true
+        'value': 0
+    });
+    Object.defineProperty(Circle.prototype, 'endAngle', {
+        'enumerable': true,
+        'value': 2 * Pi
     });
 
-    CircleMix = Bread.augment(Body, [Circle, Arc]);;
+    CircleMix = Bread.augment(Body, [Arc, Circle]);
     Bread.circle = circle;
     Bread.Circle = CircleMix;
 

@@ -17,24 +17,27 @@
         return false;
     }
 
-    function Arc() {
+    function Arc(attrs) {
         /*Arc base mixin*/
-    }
-
-    function arc(attrs) {
-
         try {
             if (!Bread.isNumber(attrs.radius)) throw error.type('radius must be a number');
             if (!Bread.isNumber(attrs.startAngle)) throw error.type('startAngle must be a number');
             if (!Bread.isNumber(attrs.endAngle)) throw error.type('endAngle must be a number');
-            var instance = new ArcMix({
-                x: attrs.x,
-                y: attrs.y
-            });
-            return init.call(instance, attrs);
+            if (!init.call(this, attrs)) throw error.type('error in position');
         } catch (e) {
             error.show(e);
         }
+    }
+
+    function arc(attrs) {
+
+        return new ArcMix({
+            x: attrs.x,
+            y: attrs.y,
+            radius: attrs.radius,
+            startAngle: attrs.startAngle,
+            endAngle: attrs.endAngle
+        });
     }
 
     function init(attrs) {
@@ -51,6 +54,7 @@
             this.validateContext();
             this.context.beginPath();
             this.context.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle, this.anticlock);
+            this.context.closePath();
             fillArc.call(this);
         }
     }
@@ -66,22 +70,18 @@
         }
     });
 
-
-    Object.defineProperty(Arc.prototype, 'arc', {
-        'enumerable': true,
-        'value': true
-    });
-
     function fillArc() {
 
         if (this.fill) {
+            this.context.fillStyle = this.fill;
             this.context.fill();
-        } else {
-            this.context.stroke();
         }
+        this.context.strokeStyle = this.stroke || '#000';
+        this.context.stroke();
+
     }
 
-    ArcMix = Bread.augment(Body, [Arc, Point]);
+    ArcMix = Bread.augment(Body, [Point, Arc]);
     Bread.arc = arc;
     Bread.Arc = ArcMix;
 

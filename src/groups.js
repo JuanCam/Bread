@@ -152,6 +152,7 @@
         }
     }
 
+    Bread.Group = Bread.augment(Array, [Group]);
     Bread.group = function(attrs) {
         return group(attrs, undefined, attrs.length);
     };

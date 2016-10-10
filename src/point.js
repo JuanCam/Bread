@@ -2,7 +2,7 @@
 
     'use strict';
 
-    var error, Body, PointMix, queuedir;
+    var error, Body, PointMix;
     error = Bread.error();
     Body = Bread.Body;
 
@@ -13,49 +13,35 @@
         return false;
     }
 
-    /*Private properties*/
-    queuedir = [];
-
     function Point(attrs) {
         /*Point base mixin*/
         try {
 
             if (!Bread.isNumber(attrs.x)) throw error.type('x must be a number');
             if (!Bread.isNumber(attrs.y)) throw error.type('y must be a number');
-            this.x = attrs.x;
-            this.y = attrs.y;
-
+            this.angle = attrs.angle || 0;
         } catch (e) {
             error.show(e);
         }
     }
 
     function point(attrs) {
-        try {
-            var instance = new PointMix({
-                x: attrs.x,
-                y: attrs.y,
-                angle: attrs.angle || 0
-            });
-            if (!instance.x || !instance.y) throw error.declare('error in position');
-            return instance;
 
-        } catch (e) {
-            error.show(e);
-        }
+        return new PointMix({
+            x: attrs.x,
+            y: attrs.y,
+            angle: attrs.angle
+        });
     }
 
 
     Point.prototype = {
-        xgoes: 1,
-        ygoes: 1,
         distance: function(point) {
             var d;
             try {
                 if (!Bread.isBody(point)) throw error.type('point must be a body');
                 if (!Bread.isNumber(point.x)) throw error.type('x must be a number');
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
-
                 d = Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
 
             } catch (e) {
@@ -94,19 +80,20 @@
             }
         },
         direction: function() {
-            var dirx, diry;
-            dirx = 0;
-            diry = 0;
-            if (queuedir.length <= 0) {
-                queuedir.push(this.x)
-                queuedir.push(this.y)
+            var dx, dy;
+            dx = 0;
+            dy = 0;
+            if (this.queuedir.length <= 0) {
+                this.queuedir.push(this.x)
+                this.queuedir.push(this.y)
             } else {
-                dirx = ((this.x - queuedir[0]) / Math.abs(this.x - queuedir[0])) || 0;
-                diry = ((this.y - queuedir[1]) / Math.abs(this.y - queuedir[1])) || 0;
-                queuedir.pop(), queuedir.pop();
-                queuedir.push(this.x), queuedir.push(this.y);
+                dx = (this.x - this.queuedir[0] != 0) ? this.x - this.queuedir[0] : 1;
+                dy = (this.y - this.queuedir[1] != 0) ? this.y - this.queuedir[1] : 1;
+                toward.call(this, dx, dy);
+                this.queuedir.pop(), this.queuedir.pop();
+                this.queuedir.push(this.x), this.queuedir.push(this.y);
             }
-            return [dirx, diry];
+            return [this.xgoes, this.ygoes];
         },
         directionLine: function() {
             var slope, b, xp, point;
@@ -160,15 +147,6 @@
                 error.show(e);
             }
         }
-    });
-
-    Object.defineProperty(Point.prototype, 'point', {
-        'enumerable': true,
-        'value': true
-    });
-    Object.defineProperty(Point.prototype, 'reachPnt', {
-        'enumerable': false,
-        'value': undefined
     });
 
     function _compare(a, b) {

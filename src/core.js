@@ -18,11 +18,6 @@
         bodies:[],
         addIt: function(body) {
 
-            if (!(body instanceof Bread.Body)) {
-                console.error('Incorrect input argument in add-it!');
-                return false;
-            }
-
             for (var bd in this.bodies) {
                 if (this.bodies[bd] == body) {
                     console.error('Duplicate objects in enviromet!');
@@ -48,10 +43,6 @@
         },
         removeIt: function(body) {
 
-            if (!(body instanceof Bread.Body)) {
-                console.error('Incorrect input argument in remove-it!');
-                return false;
-            }
             for (var bdy in this.bodies) {
                 if (this.bodies[bdy] == body)
                     this.bodies.splice(1, bdy);

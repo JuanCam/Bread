@@ -21,8 +21,8 @@
             this.text = attrs.text;
             this.x = attrs.x || 0;
             this.y = attrs.y || 0;
-            this.fill = this.fill || false;
-            this.textBaseline = this.textBaseline || '';
+            this.fill = attrs.fill || false;
+            this.textBaseline = attrs.textBaseline || '';
             this.font = attrs.font || "3px serif";
             this.maxWidth = attrs.maxWidth || 0;
         } catch (e) {
@@ -32,14 +32,17 @@
 
     Text.prototype = {
         render: function() {
-            Bread.Body.validateContext.call(this);
+            Bread.Body.prototype.validateContext.call(this);
             this.context.font = this.font;
+            this.context.beginPath();
             if (this.textBaseline) this.context.textBaseline = this.textBaseline;
             if (this.fill) {
+                this.context.fillStyle = this.fill;
                 this.context.fillText(this.text, this.x, this.y);
             } else {
                 this.context.strokeText(this.text, this.x, this.y);
             }
+            this.context.closePath();
         }
     }
 
