@@ -96,10 +96,12 @@
             return [this.xgoes, this.ygoes];
         },
         directionLine: function() {
-            var slope, b, xp, point;
+            var slope, b, xp, point, isRightAng, absAng;
+            absAng = Math.abs(this.angle) / (Math.PI / 2);
             slope = Math.tan(this.angle);
+            isRightAng = (absAng == 5 || absAng == 1);
             b = this.y - this.x * slope;
-            xp = this.x + this.xgoes * 10;
+            xp = (isRightAng) ? this.x : this.x + this.xgoes * this.speed;
             point = Bread.point({
                 x: xp,
                 y: xp * slope + b

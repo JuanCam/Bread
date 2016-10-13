@@ -19,10 +19,20 @@
         return Bread.augment(Array, [Group]);
     }
 
+    function cloneProperty() {
+        var i;
+        for (i in this) {
+            if (Bread.isBody(this[i])) this[i] = this[i].clone();
+            if (Bread.isArray(this[i])) this[i] = Group.prototype.clone.call(this[i]);
+        }
+        return this;
+    }
+
     function _createGroup(body, attrs, len) {
         var b = 0;
         while (b < len) {
             if (Bread.isObject(attrs)) {
+                attrs = cloneProperty.call(attrs);
                 this.push(body(attrs));
             } else {
                 this.push(body[b]);
@@ -90,7 +100,7 @@
             },
             lines: function(attrs, len) {
                 var body, att;
-                body = Bread.line();
+                body = Bread.line;
                 att = {
                     x: attrs.x,
                     y: attrs.y,
@@ -149,6 +159,13 @@
             Bread.forEach(this, function(b) {
                 b.move();
             });
+        },
+        clone: function() {
+            var cloned = this.slice();
+            cloned = Bread.map(cloned, function(b) {
+                return b.clone();
+            });
+            return cloned;
         }
     }
 

@@ -19,7 +19,7 @@
 
         function CoreBase() {
             Base.apply(this, arguments);
-            mixins[lastInd].apply(this, arguments);
+            if (lastInd >= 0) mixins[lastInd].apply(this, arguments);
         }
 
         CoreBase.prototype = Object.create(Base.prototype); //Chain

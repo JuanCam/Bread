@@ -24,7 +24,7 @@ Rectangles, Circles, Sprites, etc, are descendents of Body and they are attached
         - circle.js
 
 
-#### Library extension
+## Library extension
 
 If you want to extend or add new features to the library, please follow this steps:
 
@@ -38,7 +38,8 @@ If you want to extend or add new features to the library, please follow this ste
 ## Getting started
 
 
-Run ```npm install breadjs``` or download this repo, the library is in the dist folder, so include dist/bread.js in your project.
+Run ```npm install breadjs``` .
+The library is in the dist folder, so include dist/bread.js in your project.
 
 Once you are done with the installation you must create a canvas element, this element will be associated to the universe object, 
 this object will be explained further in this document.
@@ -46,7 +47,7 @@ this object will be explained further in this document.
 <canvas id="canvas_el"></canvas>
 ```
 
-## Factories
+### Factories
 
 The library provides a set of factories which provides a handy way to create objects. You may also create objects if 
 you invoke their class. I.E. if we want to create a body of type circle, we can do it like this:
@@ -82,7 +83,7 @@ The factories available are the following ones:
 - text.
 
 
-### - Universe
+### Universe
 
 Create a universe by calling the universe factory from the Bread object, you must pass as an argument to this method an 
 object that contains 2 properties: the **el** property and the frame rate (in case you want to make an animation).
@@ -94,12 +95,12 @@ var firstUniverse = Bread.universe({
 });
 ```
 
-##### Attributes
+#### Attributes
 
  - **el:** Is the canvas HTML element.
  - **frate:** Frame rate for the animation.
 
-##### Methods
+#### Methods
 
  - **addIt:** Adds a body to the universe, this allows the vody to be rendered in the canvas element:
 
@@ -128,7 +129,7 @@ var firstUniverse = Bread.universe({
   ```
 
 
-### - Body
+### Body
 
 Body is the core or the base of all objects that are going to be used inside the universe, it provides some generic methods
 that all bodies share (accelerate, move, etc).
@@ -142,7 +143,7 @@ var Body = Bread.Body;
 var MyCustomBody =  Bread.augment(Body, [MyMixin]);
 ```
 
-##### Attributes
+#### Attributes
 
  This attributes are the same for all bodies.
 
@@ -154,7 +155,7 @@ var MyCustomBody =  Bread.augment(Body, [MyMixin]);
  - **angle:** body angle.
  - **friction:** body friction.
 
-##### Methods
+#### Methods
 
 This methods can be found on all bodies.
 
@@ -202,7 +203,7 @@ This methods can be found on all bodies.
   ```
 
 
-### - Point
+### Point
 
 Point is the smallest (atomic) body that exists in the library, everything has a point.
 
@@ -218,11 +219,11 @@ var pnt1 = Bread.point({
 })
 ```
 
-##### Attributes
+#### Attributes
 
  - **reflexAngle:** Is the reflex angle.
 
-##### Methods
+#### Methods
 
 This methods can be found on all bodies, except for Body.
 
@@ -265,8 +266,15 @@ This methods can be found on all bodies, except for Body.
   
   dir: Is an array that contains the direction over the x axis in the first position and the y axis in the second one
 
+ - **directionLine()** return a line that represents the motion vector.
 
-### - Line
+  ```javascript
+  var dirL = pnt1.directionLine();
+  ```
+  
+  dirL: Is a line that represents the motion vector of the point.
+
+### Line
 
 Line is formed by two or more points. So it shares all point methods and properties.
 
@@ -282,7 +290,7 @@ var line1 = Bread.line({
 });
 ```
 
-##### Attributes
+#### Attributes
 
  - **points:** Array of all points, every item should be an object of type Point.
  - **allPoints:** Is the same points array, including the initial point (x,y).
@@ -291,7 +299,7 @@ var line1 = Bread.line({
  - **fill:** Boolean, this attribute allows to fill the line if true when rendered
  - **close:** Boolean, this attribute allows to close the line to its initial point if true.
 
-##### Methods
+#### Methods
 
  - **collision:** This method detects a collision between the line and other line. Returns a boolean
 

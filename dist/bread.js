@@ -1,6 +1,6 @@
 'use strict';
 /*
-Name: breadjs@0.0.33
+Name: breadjs@0.0.35
 Author: Juan Gutierrez. Email: juanc1gutierrez@gmail.com
 Bread is a JS library to help Developers who wants to include animations or some interaction using HTML5 Canvas.
 Repo: https://github.com/JuanCam/Bread.
@@ -401,7 +401,7 @@ var error = Bread.error();
 
         function CoreBase() {
             Base.apply(this, arguments);
-            mixins[lastInd].apply(this, arguments);
+            if (lastInd >= 0) mixins[lastInd].apply(this, arguments);
         }
 
         CoreBase.prototype = Object.create(Base.prototype); //Chain
@@ -416,7 +416,8 @@ var error = Bread.error();
 
     Bread.augment = augment;
 
-})(window, window.Bread);/* Module file: src/body.js */
+})(window, window.Bread)
+;/* Module file: src/body.js */
 (function(w, Bread) {
 
 var error, bodyProto;
@@ -612,10 +613,12 @@ var error, Body, PointMix;
             return [this.xgoes, this.ygoes];
         },
         directionLine: function() {
-            var slope, b, xp, point;
+            var slope, b, xp, point, isRightAng, absAng;
+            absAng = Math.abs(this.angle) / (Math.PI / 2);
             slope = Math.tan(this.angle);
+            isRightAng = (absAng == 5 || absAng == 1);
             b = this.y - this.x * slope;
-            xp = this.x + this.xgoes * 10;
+            xp = (isRightAng) ? this.x : this.x + this.xgoes * this.speed;
             point = Bread.point({
                 x: xp,
                 y: xp * slope + b
@@ -781,7 +784,7 @@ var error, Body, Point, LineMix, Pi, fPoint;
     }
 
     function line(attrs) {
-        
+
         return new LineMix({
             x: attrs.x,
             y: attrs.y,
@@ -805,23 +808,8 @@ var error, Body, Point, LineMix, Pi, fPoint;
     Line.prototype = {
         collision: function(line) {
             try {
-                var p, sortX, sortY, d, dirLine, cutPnt, flag;
                 if (!Bread.isBody(line)) throw error.type('line must be a body');
-                p = 0;
-                sortX = [];
-                sortY = [];
-                d = 0;
-                for (; p < this.allPoints.length; p++) {
-                    dirLine = guidePoint.call(this, p);
-                    cutPnt = line.cutPoints(dirLine, p, p);
-                    d = this.allPoints[p].distance(cutPnt);
-                    sortX = Bread.pluck(line.allPoints, 'x').sort(_compare);
-                    sortY = Bread.pluck(line.allPoints, 'y').sort(_compare);
-                    flag = d <= Math.abs(this.speed);
-                    flag = flag && Bread.inRange(cutPnt.x, sortX[0], sortX[1]) && Bread.inRange(cutPnt.y, sortY[0], sortY[1]);
-                    if (flag) break;
-                }
-                return flag;
+                return _collision.call(this, line) || _collision.call(line, this);
 
             } catch (e) {
                 error.show(e);
@@ -857,16 +845,20 @@ var error, Body, Point, LineMix, Pi, fPoint;
         },
         cutPoints: function(line, n1, n2) {
             /*Get cut points of interpolated lines*/
-            var x, y, points, s1, s2, b1, b2;
+            var x, y, points, vPoints, s1, s2, b1, b2;
             points = this.allPoints;
+            vPoints = line.allPoints;
             s1 = (n1 >= points.length - 1) ? n1 - 1 : n1;
             s2 = (n2 >= points.length - 1) ? n2 - 1 : n2;
             b1 = getYIntersec.call(line, n1, s1);
             b2 = getYIntersec.call(this, n2, s2);
 
-            if (b1 === Infinity || b2 === Infinity) {
+            if (Math.abs(b2) === Infinity) {
                 x = points[n2].x;
-                y = points[n1].y + (Math.abs(points[n1].x - points[n2].x) * line.slopes[s1]);
+                y = points[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * line.slopes[s1]);
+            } else if (Math.abs(b1) === Infinity) {
+                x = vPoints[n2].x;
+                y = vPoints[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * this.slopes[s2]);
             } else {
                 x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
                 y = x * line.slopes[s1] + b1;
@@ -874,40 +866,6 @@ var error, Body, Point, LineMix, Pi, fPoint;
             return (x && y) ? Bread.point({ x: x, y: y }) : null;
         }
     };
-
-    function _draw(points) {
-        var p = points.length - 1;
-        while (p >= 0) {
-            this.context.lineTo(points[p].x, points[p].y);
-            p--;
-        }
-    }
-
-    function _slopes(points) {
-        var p, slope, slopes;
-        p = points.length - 1;
-        slopes = [];
-        while (p > 0) {
-            slope = (points[p].y - points[p - 1].y) / (points[p].x - points[p - 1].x)
-            slopes.push(slope);
-            p--;
-        }
-        return slopes;
-    }
-
-    function _perimeter(points) {
-        var p, perimeter;
-        p = points.length - 1;
-        while (p >= 0) {
-            perimeter += points[p].distance(points[p - 1]);
-            p--;
-        }
-        return perimeter;
-    }
-
-    function _compare(a, b) {
-        return a - b;
-    }
 
     Object.defineProperty(Line.prototype, 'allPoints', {
         get: function() {
@@ -944,13 +902,88 @@ var error, Body, Point, LineMix, Pi, fPoint;
         }
     });
 
+    function _collision(line) {
+        var p, sortX, sortY, d, a, dirLine, mLine, cutPnt, flag;
+        p = 0;
+        sortX = [];
+        sortY = [];
+        d = 0;
+        a = line.allPoints.length - 1;
+        
+        while (p < this.allPoints.length) {
+            dirLine = guidePoint.call(this, line, p);
+            cutPnt = line.cutPoints(dirLine, p, p);
+            if (!cutPnt) return false ;
+            d = this.allPoints[p].distance(cutPnt);
+            sortX = Bread.pluck(line.allPoints, 'x').sort(_compare);
+            sortY = Bread.pluck(line.allPoints, 'y').sort(_compare);
+            flag = d <= Math.abs(this.speed);
+            flag = flag && Bread.inRange(cutPnt.x, sortX[0], sortX[a]) && Bread.inRange(cutPnt.y, sortY[0], sortY[a]);
+            if (flag) break;
+            p++;
+        }
+        return flag;
+    }
+
+    function _draw(points) {
+        var p = points.length - 1;
+        while (p >= 0) {
+            this.context.lineTo(points[p].x, points[p].y);
+            p--;
+        }
+    }
+
+    function _slopes(points) {
+        var p, slope, slopes;
+        p = points.length - 1;
+        slopes = [];
+        while (p > 0) {
+            slope = (points[p].y - points[p - 1].y) / (points[p].x - points[p - 1].x)
+            slopes.push(slope);
+            p--;
+        }
+        return slopes;
+    }
+
+    function _perimeter(points) {
+        var p, perimeter;
+        p = points.length - 1;
+        while (p >= 0) {
+            perimeter += points[p].distance(points[p - 1]);
+            p--;
+        }
+        return perimeter;
+    }
+
+    function _compare(a, b) {
+        return a - b;
+    }
+
     function drawPoints(points) {
         return _draw.call(this, points);
     }
 
-    function guidePoint(p) {
-        var point = this.allPoints[p];
-        point.angle = this.angle;
+    function detectMovingLine(line1, line2) {
+        var line;
+        if (Math.abs(line1.speed) > 1e-7) {
+            line = line1;
+        } else if (Math.abs(line2.speed) > 1e-7) {
+            line = line2;
+        }
+        return line;
+    }
+
+    function guidePoint(line, p) {
+        var point = this.allPoints[p].clone();
+        if (Math.abs(this.speed) <= 0) {
+            point.angle = line.angle - Math.PI;
+            point.xgoes = -line.xgoes;
+            point.ygoes = -line.ygoes;
+            point.speed = line.speed;
+        } else {
+            point.angle = this.angle;
+            point.speed = this.speed;
+        }
         return point.directionLine();
     }
 
@@ -1253,10 +1286,20 @@ var error = Bread.error();
         return Bread.augment(Array, [Group]);
     }
 
+    function cloneProperty() {
+        var i;
+        for (i in this) {
+            if (Bread.isBody(this[i])) this[i] = this[i].clone();
+            if (Bread.isArray(this[i])) this[i] = Group.prototype.clone.call(this[i]);
+        }
+        return this;
+    }
+
     function _createGroup(body, attrs, len) {
         var b = 0;
         while (b < len) {
             if (Bread.isObject(attrs)) {
+                attrs = cloneProperty.call(attrs);
                 this.push(body(attrs));
             } else {
                 this.push(body[b]);
@@ -1324,7 +1367,7 @@ var error = Bread.error();
             },
             lines: function(attrs, len) {
                 var body, att;
-                body = Bread.line();
+                body = Bread.line;
                 att = {
                     x: attrs.x,
                     y: attrs.y,
@@ -1383,6 +1426,13 @@ var error = Bread.error();
             Bread.forEach(this, function(b) {
                 b.move();
             });
+        },
+        clone: function() {
+            var cloned = this.slice();
+            cloned = Bread.map(cloned, function(b) {
+                return b.clone();
+            });
+            return cloned;
         }
     }
 
