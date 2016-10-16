@@ -7,8 +7,6 @@
         universe: CreateUniverse
     };
 
-    var context;
-
     function CreateUniverse(attrs) {
         return new Universe(attrs);
     }
@@ -26,7 +24,7 @@
             }
 
             this.bodies.push(body);
-            body.context = context;
+            body.context = this.context;
         },
         addGroup: function(group) {
 
@@ -50,9 +48,10 @@
             body.context = undefined;
         },
         animation: function(fn) {
+            var local, canvas;
 
-            var local = this;
-            var canvas = local.el;
+            local = this;
+            canvas = local.el;
 
             function animate() {
                 setTimeout(Animation, local.frate);
@@ -60,7 +59,7 @@
 
             function Animation() {
                 requestAnimationFrame(animate);
-                context.clearRect(0, 0, canvas.width, canvas.height);
+                local.context.clearRect(0, 0, canvas.width, canvas.height);
                 fn.call(local);
             }
             animate();
@@ -82,7 +81,7 @@
         var tagname = this.el.tagName;
 
         if (tagname == 'CANVAS') {
-            context = this.el.getContext("2d");
+            this.context = this.el.getContext("2d");
         } else {
             console.error('HTML Element must be canvas tag');
             return false;
