@@ -57,6 +57,6 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', ['concat:dist']);
-    grunt.registerTask('build', ['watch']);
+    grunt.registerTask('build', ['concat:dist', 'watch']);
     grunt.registerTask('concatSrc', ['watch:concatSrc']);
 }
