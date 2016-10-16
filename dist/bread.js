@@ -13,6 +13,8 @@ var Bread = {
         universe: CreateUniverse
     };
 
+    var context;
+
     function CreateUniverse(attrs) {
         return new Universe(attrs);
     }
@@ -30,7 +32,7 @@ var Bread = {
             }
 
             this.bodies.push(body);
-            body.context = this.context;
+            body.context = context;
         },
         addGroup: function(group) {
 
@@ -54,10 +56,9 @@ var Bread = {
             body.context = undefined;
         },
         animation: function(fn) {
-            var local, canvas;
 
-            local = this;
-            canvas = local.el;
+            var local = this;
+            var canvas = local.el;
 
             function animate() {
                 setTimeout(Animation, local.frate);
@@ -65,7 +66,7 @@ var Bread = {
 
             function Animation() {
                 requestAnimationFrame(animate);
-                local.context.clearRect(0, 0, canvas.width, canvas.height);
+                context.clearRect(0, 0, canvas.width, canvas.height);
                 fn.call(local);
             }
             animate();
@@ -87,7 +88,7 @@ var Bread = {
         var tagname = this.el.tagName;
 
         if (tagname == 'CANVAS') {
-            this.context = this.el.getContext("2d");
+            context = this.el.getContext("2d");
         } else {
             console.error('HTML Element must be canvas tag');
             return false;
@@ -635,7 +636,7 @@ var error, Body, PointMix;
                 if (!Bread.isNumber(point.y)) throw error.type('y must be a number');
                 target = (this.reachPnt) ? this.reachPnt : point
                 this.pointTo(target);
-                linesPth = linesInPath.call(this, lines, point);
+                linesPth = linesInPath.call(this, lines, target);
                 if (linesPth.length) {
                     closeLine = getCloseLine.call(this, linesPth, space);
                     points = closeLine.allPoints;
@@ -673,17 +674,18 @@ var error, Body, PointMix;
 
     function linesInPath(lines, target) {
         var dirLine, cutPnt, linesPth, point;
-        dirLine = Bread.line({ x: this.x, y: this.y, points: [target] });
+        dirLine = this.directionLine();
         linesPth = [];
         point = this;
         Bread.forEach(lines, function(line, ind) {
             var isInX, isInY, x, y, isClose;
             cutPnt = line.cutPoints(dirLine, 0, 0);
-            x = [target.x, point.x].sort(_compare);
-            y = [target.y, point.y].sort(_compare);
-            isInX = Bread.inRange(cutPnt.x, x[0], x[1], true);
-            isInY = Bread.inRange(cutPnt.y, y[0], y[1], true);
-            if (cutPnt && isInX && isInY) {
+            x = [line.x, line.points[0].x].sort(_compare);
+            y = [line.y, line.points[0].y].sort(_compare);
+            isInX = Bread.inRange(cutPnt.x, x[0], x[1]);
+            isInY = Bread.inRange(cutPnt.y, y[0], y[1]);
+            isClose = cutPnt.distance(point) < target.distance(point);
+            if (cutPnt && isInX && isInY && isClose) {
                 linesPth.push({
                     line: line,
                     cutPnt: cutPnt
@@ -710,15 +712,16 @@ var error, Body, PointMix;
         x = extrapolated.axis;
         extrapolated = extrapolateAxis.call(line, 'y', space);
         y = extrapolated.axis;
-        line.x = x;
-        line.y = y;
-        line.points = [extrapolated.points[1]];
+        line.xdef = x;
+        line.ydef = y;
+        line.points = extrapolated.points;
         return line;
     }
 
     function extrapolateAxis(axis, space) {
-        var points, a;
+        var points, slopes, a;
         points = this.allPoints;
+        slopes = this.slopes;
         if (points[0][axis] > points[1][axis]) {
             a = this[axis] + space;
             points[0][axis] = points[0][axis] - space;
@@ -746,7 +749,8 @@ var error, Body, PointMix;
     Bread.point = point;
     Bread.Point = PointMix;
 
-})(window, window.Bread);/* Module file: src/line.js */
+})(window, window.Bread)
+;/* Module file: src/line.js */
 (function(w, Bread) {
 
 var error, Body, Point, LineMix, Pi, fPoint;
@@ -793,6 +797,8 @@ var error, Body, Point, LineMix, Pi, fPoint;
     function init(attrs) {
         if (!this.x || !this.y) return;
         /*Create an object for the first point*/
+        var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
+        this.firstPoint = fPoint;
         this.points = attrs.points;
         this.fill = attrs.fill;
         this.close = attrs.close;
@@ -821,6 +827,7 @@ var error, Body, Point, LineMix, Pi, fPoint;
         move: function() {
             var p = this.points.length - 1;
             Bread.Body.prototype.move.call(this);
+            this.firstPoint.update(this.x, this.y);
 
             for (; p >= 0; p--) {
                 this.points[p].speed = this.speed;
@@ -848,10 +855,10 @@ var error, Body, Point, LineMix, Pi, fPoint;
 
             if (Math.abs(b2) === Infinity) {
                 x = points[n2].x;
-                y = vPoints[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * line.slopes[s1]);
+                y = points[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * line.slopes[s1]);
             } else if (Math.abs(b1) === Infinity) {
                 x = vPoints[n2].x;
-                y = points[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * this.slopes[s2]);
+                y = vPoints[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * this.slopes[s2]);
             } else {
                 x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
                 y = x * line.slopes[s1] + b1;
@@ -862,8 +869,7 @@ var error, Body, Point, LineMix, Pi, fPoint;
 
     Object.defineProperty(Line.prototype, 'allPoints', {
         get: function() {
-            var first = Bread.point({ x: this.x, y: this.y })
-            return [first].concat(this.points);
+            return [this.firstPoint].concat(this.points);
         }
     });
 
@@ -881,7 +887,21 @@ var error, Body, Point, LineMix, Pi, fPoint;
             return _slopes(points);
         }
     });
-    
+
+    Object.defineProperty(Line.prototype, 'xdef', {
+        set: function(x) {
+            this.x = x;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
+    Object.defineProperty(Line.prototype, 'ydef', {
+        set: function(y) {
+            this.y = y;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
     function _collision(line) {
         var p, sortX, sortY, d, a, dirLine, mLine, cutPnt, flag;
         p = 0;

@@ -46,6 +46,8 @@
     function init(attrs) {
         if (!this.x || !this.y) return;
         /*Create an object for the first point*/
+        var fPoint = Bread.point({ x: attrs.x, y: attrs.y });
+        this.firstPoint = fPoint;
         this.points = attrs.points;
         this.fill = attrs.fill;
         this.close = attrs.close;
@@ -74,6 +76,7 @@
         move: function() {
             var p = this.points.length - 1;
             Bread.Body.prototype.move.call(this);
+            this.firstPoint.update(this.x, this.y);
 
             for (; p >= 0; p--) {
                 this.points[p].speed = this.speed;
@@ -101,10 +104,10 @@
 
             if (Math.abs(b2) === Infinity) {
                 x = points[n2].x;
-                y = vPoints[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * line.slopes[s1]);
+                y = points[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * line.slopes[s1]);
             } else if (Math.abs(b1) === Infinity) {
                 x = vPoints[n2].x;
-                y = points[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * this.slopes[s2]);
+                y = vPoints[n1].y + (Math.abs(points[n1].x - vPoints[n2].x) * this.slopes[s2]);
             } else {
                 x = (b1 - b2) / (this.slopes[s2] - line.slopes[s1]);
                 y = x * line.slopes[s1] + b1;
@@ -115,8 +118,7 @@
 
     Object.defineProperty(Line.prototype, 'allPoints', {
         get: function() {
-            var first = Bread.point({ x: this.x, y: this.y })
-            return [first].concat(this.points);
+            return [this.firstPoint].concat(this.points);
         }
     });
 
@@ -134,7 +136,21 @@
             return _slopes(points);
         }
     });
-    
+
+    Object.defineProperty(Line.prototype, 'xdef', {
+        set: function(x) {
+            this.x = x;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
+    Object.defineProperty(Line.prototype, 'ydef', {
+        set: function(y) {
+            this.y = y;
+            if (this.firstPoint) this.firstPoint.update(this.x, this.y);
+        }
+    });
+
     function _collision(line) {
         var p, sortX, sortY, d, a, dirLine, mLine, cutPnt, flag;
         p = 0;
